@@ -23,28 +23,9 @@ public class ExpenseTrackerApp {
             int choice = readMenuChoice(scanner);
 
             switch (choice) {
-                case 1 -> {
-                    System.out.println("\nAll transactions:");
-
-                    if (manager.getAllTransactions().isEmpty()) {
-                        System.out.println("No transactions yet.");
-                    } else {
-                        for (Transaction t : manager.getAllTransactions()) {
-                            System.out.println(t);
-                        }
-                    }
-                }
+                case 1 -> handleList(manager);
                 case 2 -> System.out.println("Add transaction not implemented yet.");
-                case 3 -> {
-                    long id = readLong(scanner, "Enter transaction ID to delete: ");
-                    boolean removed = manager.removeTransactionById(id);
-
-                    if (removed) {
-                        System.out.println("Transaction removed.");
-                    } else {
-                        System.out.println("Transaction not found.");
-                    }
-                }
+                case 3 -> handleDelete(manager, scanner);
                 case 4 -> System.out.println("TODO: filter transactions");
                 case 0 -> {
                     System.out.println("Bye!");
@@ -76,6 +57,30 @@ public class ExpenseTrackerApp {
             } catch (NumberFormatException e) {
                 System.out.print("Invalid input. Enter a number: ");
             }
+        }
+    }
+
+    private static void handleList(TransactionListManager manager) {
+        System.out.println("\nAll transactions:");
+
+        if (manager.getAllTransactions().isEmpty()) {
+            System.out.println("No transactions yet.");
+            return;
+        }
+
+        for (Transaction t : manager.getAllTransactions()) {
+            System.out.println(t);
+        }
+    }
+
+    private static void handleDelete(TransactionListManager manager, Scanner scanner) {
+        long id = readLong(scanner, "Enter transaction ID to delete: ");
+        boolean removed = manager.removeTransactionById(id);
+
+        if (removed) {
+            System.out.println("Transaction removed.");
+        } else {
+            System.out.println("Transaction not found.");
         }
     }
 
