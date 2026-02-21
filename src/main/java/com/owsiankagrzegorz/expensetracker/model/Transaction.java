@@ -7,9 +7,11 @@ public class Transaction {
     private String category;
     private LocalDate date;
     private String type; // "WYDATEK" lub "Przychód"
+    private long id;
 
     //Konstruktor
-    public Transaction (double amount, String category, LocalDate date, String type) {
+    public Transaction (long id, double amount, String category, LocalDate date, String type) {
+        this.id = id;
         this.amount = amount;
         this.category = category;
         this.date = date;
@@ -17,6 +19,14 @@ public class Transaction {
     }
 
     //Gettery i settery
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public double getAmount() {return amount;}
     public void setAmount(double amount) {this.amount = amount;}
 

@@ -19,8 +19,8 @@ class TransactionArrayManagerTest {
 
     @Test
     void testAddTransaction() {
-        Transaction t1 = new Transaction(100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
-        Transaction t2 = new Transaction(200.0, "Transport", LocalDate.now(), "WYDATEK");
+        Transaction t1 = new Transaction(1L,100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
+        Transaction t2 = new Transaction(2L,200.0, "Transport", LocalDate.now(), "WYDATEK");
 
         assertTrue(manager.addTransaction(t1));
         assertTrue(manager.addTransaction(t2));
@@ -30,14 +30,14 @@ class TransactionArrayManagerTest {
         manager = new TransactionArrayManager(2);
         assertTrue(manager.addTransaction(t1));
         assertTrue(manager.addTransaction(t2));
-        Transaction t3 = new Transaction(300.0, "Extra", LocalDate.now(), "PRZYCHOD");
+        Transaction t3 = new Transaction(3L,300.0, "Extra", LocalDate.now(), "PRZYCHOD");
         assertFalse(manager.addTransaction(t3));
     }
 
     @Test
     void testGetAllTransactions() {
-        Transaction t1 = new Transaction(100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
-        Transaction t2 = new Transaction(200.0, "Transport", LocalDate.now(), "WYDATEK");
+        Transaction t1 = new Transaction(1L,100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
+        Transaction t2 = new Transaction(2L,200.0, "Transport", LocalDate.now(), "WYDATEK");
 
         manager.addTransaction(t1);
         manager.addTransaction(t2);
@@ -50,9 +50,9 @@ class TransactionArrayManagerTest {
 
     @Test
     void testFilterByType() {
-        Transaction t1 = new Transaction(100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
-        Transaction t2 = new Transaction(200.0, "Transport", LocalDate.now(), "WYDATEK");
-        Transaction t3 = new Transaction(500.0, "Wypłata", LocalDate.now(), "PRZYCHOD");
+        Transaction t1 = new Transaction(1L,100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
+        Transaction t2 = new Transaction(2L,200.0, "Transport", LocalDate.now(), "WYDATEK");
+        Transaction t3 = new Transaction(3L,500.0, "Wypłata", LocalDate.now(), "PRZYCHOD");
 
         manager.addTransaction(t1);
         manager.addTransaction(t2);
