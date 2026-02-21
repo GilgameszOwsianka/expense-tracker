@@ -24,7 +24,7 @@ public class ExpenseTrackerApp {
 
             switch (choice) {
                 case 1 -> handleList(manager);
-                case 2 -> handleAddTransactionPrompt(scanner);
+                case 2 -> handleAddTransaction(manager, scanner);
                 case 3 -> handleDelete(manager, scanner);
                 case 4 -> System.out.println("TODO: filter transactions");
                 case 0 -> {
@@ -138,17 +138,28 @@ public class ExpenseTrackerApp {
         }
     }
 
-    private static void handleAddTransactionPrompt(Scanner scanner) {
+    private static long nextTransactionId(TransactionListManager manager) {
+        long maxId = 0L;
+        for (Transaction t : manager.getAllTransactions()) {
+            if (t.getId() > maxId) {
+                maxId = t.getId();
+            }
+        }
+        return maxId + 1;
+    }
+
+    private static void handleAddTransaction(TransactionListManager manager, Scanner scanner) {
         System.out.println("\nAdd new transaction");
 
         double amount = readPositiveDouble(scanner, "Amount: ");
         String category = readNonEmptyString(scanner, "Category: ");
         String type = readTransactionTypeString(scanner, "Type (WYDATEK/PRZYCHOD): ");
 
-        System.out.println("\nYou entered:");
-        System.out.println("Amount: " + amount);
-        System.out.println("Category: " + category);
-        System.out.println("Type: " + type);
-        System.out.println("Note: saving is not implemented yet.");
+        long id = nextTransactionId(manager);
+        Transaction transaction = new Transaction(id, amount, category, LocalDate.now(), type);
+
+        manager.addTransaction(transaction);
+
+        System.out.println("Transaction added with ID: " + id);
     }
 }
