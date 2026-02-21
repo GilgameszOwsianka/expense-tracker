@@ -35,7 +35,16 @@ public class ExpenseTrackerApp {
                     }
                 }
                 case 2 -> System.out.println("Add transaction not implemented yet.");
-                case 3 -> System.out.println("TODO: delete transaction by id");
+                case 3 -> {
+                    long id = readLong(scanner, "Enter transaction ID to delete: ");
+                    boolean removed = manager.removeTransactionById(id);
+
+                    if (removed) {
+                        System.out.println("Transaction removed.");
+                    } else {
+                        System.out.println("Transaction not found.");
+                    }
+                }
                 case 4 -> System.out.println("TODO: filter transactions");
                 case 0 -> {
                     System.out.println("Bye!");
@@ -66,6 +75,18 @@ public class ExpenseTrackerApp {
                 return Integer.parseInt(input);
             } catch (NumberFormatException e) {
                 System.out.print("Invalid input. Enter a number: ");
+            }
+        }
+    }
+
+    private static long readLong(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            try {
+                return Long.parseLong(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Try again.");
             }
         }
     }
