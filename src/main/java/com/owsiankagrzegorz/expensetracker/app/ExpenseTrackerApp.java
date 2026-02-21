@@ -23,7 +23,18 @@ public class ExpenseTrackerApp {
             int choice = readMenuChoice(scanner);
 
             switch (choice) {
-                case 1 -> System.out.println("TODO: list transactions");
+                case 1 -> {
+                    System.out.println("\nAll transactions:");
+
+                    if (manager.getAllTransactions().isEmpty()) {
+                        System.out.println("No transactions yet.");
+                    } else {
+                        for (Transaction t : manager.getAllTransactions()) {
+                            System.out.println(t);
+                        }
+                    }
+                }
+                case 2 -> System.out.println("Add transaction not implemented yet.");
                 case 3 -> System.out.println("TODO: delete transaction by id");
                 case 4 -> System.out.println("TODO: filter transactions");
                 case 0 -> {
@@ -41,6 +52,7 @@ public class ExpenseTrackerApp {
         System.out.println();
         System.out.println("=== Expense Tracker ===");
         System.out.println("1) List all transactions");
+        System.out.println("2) Add transaction (not implemented yet)");
         System.out.println("3) Delete transaction by id");
         System.out.println("4) Filter transactions");
         System.out.println("0) Exit");
