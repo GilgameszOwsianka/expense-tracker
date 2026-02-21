@@ -16,6 +16,15 @@ public class ExpenseTrackerApp {
             System.out.println(t);
         }
 
+        System.out.println("\nUsuwam transakcję o ID 2...");
+        boolean removed = manager.removeTransactionById(2L);
+        System.out.println("Usunięto: " + removed);
+
+        System.out.println("\nLista po usunięciu:");
+        for (Transaction t : manager.getAllTransactions()){
+            System.out.println(t);
+        }
+
         System.out.println("\nTylko wydatki:");
         for (Transaction t : manager.filterByType("WYDATEK")) {
             System.out.println(t);
