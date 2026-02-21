@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public class ExpenseTrackerApp {
     public static void main(String[] args) {
-        TransactionArrayManager manager = new TransactionArrayManager(5);
+        TransactionListManager manager = new TransactionListManager();
         manager.addTransaction(new Transaction(1L,100.0, "Jedzenie", LocalDate.now(), "WYDATEK"));
         manager.addTransaction(new Transaction(2L,200.0, "Transport", LocalDate.now(), "WYDATEK"));
         manager.addTransaction(new Transaction(3L,300.0, "Przychód", LocalDate.now(), "PRZYCHOD"));
