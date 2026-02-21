@@ -24,7 +24,7 @@ public class ExpenseTrackerApp {
 
             switch (choice) {
                 case 1 -> handleList(manager);
-                case 2 -> System.out.println("Add transaction not implemented yet.");
+                case 2 -> handleAddTransactionPrompt(scanner);
                 case 3 -> handleDelete(manager, scanner);
                 case 4 -> System.out.println("TODO: filter transactions");
                 case 0 -> {
@@ -42,7 +42,7 @@ public class ExpenseTrackerApp {
         System.out.println();
         System.out.println("=== Expense Tracker ===");
         System.out.println("1) List all transactions");
-        System.out.println("2) Add transaction (not implemented yet)");
+        System.out.println("2) Add transaction");
         System.out.println("3) Delete transaction by id");
         System.out.println("4) Filter transactions");
         System.out.println("0) Exit");
@@ -94,5 +94,61 @@ public class ExpenseTrackerApp {
                 System.out.println("Invalid number. Try again.");
             }
         }
+    }
+
+    private static double readPositiveDouble(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            try {
+                double value = Double.parseDouble(input);
+                if (value <= 0) {
+                    System.out.println("Amount must be greater than 0.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Try again.");
+            }
+        }
+    }
+
+    private static String readNonEmptyString(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (!input.isEmpty()) {
+                return input;
+            }
+            System.out.println("Value cannot be empty. Try again.");
+        }
+    }
+
+    private static String readTransactionTypeString(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim().toUpperCase();
+
+            if (input.equals("WYDATEK") || input.equals("PRZYCHOD")) {
+                return input;
+            }
+
+            System.out.println("Invalid type. Enter WYDATEK or PRZYCHOD.");
+        }
+    }
+
+    private static void handleAddTransactionPrompt(Scanner scanner) {
+        System.out.println("\nAdd new transaction");
+
+        double amount = readPositiveDouble(scanner, "Amount: ");
+        String category = readNonEmptyString(scanner, "Category: ");
+        String type = readTransactionTypeString(scanner, "Type (WYDATEK/PRZYCHOD): ");
+
+        System.out.println("\nYou entered:");
+        System.out.println("Amount: " + amount);
+        System.out.println("Category: " + category);
+        System.out.println("Type: " + type);
+        System.out.println("Note: saving is not implemented yet.");
     }
 }
