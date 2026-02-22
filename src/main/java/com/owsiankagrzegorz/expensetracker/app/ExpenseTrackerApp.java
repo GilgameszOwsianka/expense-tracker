@@ -26,7 +26,7 @@ public class ExpenseTrackerApp {
                 case 1 -> handleList(manager);
                 case 2 -> handleAddTransaction(manager, scanner);
                 case 3 -> handleDelete(manager, scanner);
-                case 4 -> System.out.println("TODO: filter transactions");
+                case 4 -> handleFilter(manager, scanner);
                 case 0 -> {
                     System.out.println("Bye!");
                     running = false;
@@ -36,6 +36,24 @@ public class ExpenseTrackerApp {
         }
 
         scanner.close();
+    }
+
+    private static void handleFilter(TransactionListManager manager, Scanner scanner) {
+        System.out.println("\nFilter transactions by type");
+
+        String type = readTransactionTypeString(scanner, "Enter type (WYDATEK/PRZYCHOD): ");
+
+        var filtered = manager.filterByType(type);
+
+        if (filtered.isEmpty()) {
+            System.out.println("No transactions found for type: " + type);
+            return;
+        }
+
+        System.out.println("\nFiltered transactions:");
+        for (Transaction t : filtered) {
+            System.out.println(t);
+        }
     }
 
     private static void printMenu() {
