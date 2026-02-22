@@ -1,0 +1,22 @@
+TestCaseID,Stage,Module,Scenario,Input/Steps,ExpectedResult,Status
+TC-1.1-01,1.1,Transaction,Display single transaction,Run app -> create transaction,Object displayed correctly in console,Passed
+
+TC-1.2-01,1.2,Manager,Add multiple transactions,Add several transactions,Transactions stored correctly,Passed
+TC-1.2-02,1.2,Manager,Filter WYDATEK,Filter type= WYDATEK,Only WYDATEK returned,Passed
+
+TC-1.3-01,1.3,Menu,Invalid menu input,abc,Error + re-prompt,Passed
+TC-1.3-02,1.3,Menu,Unknown option,99,"Unknown option. Try again.",Passed
+TC-1.3-03,1.3,Add,Invalid amount,2 -> amount=abc,Error message,Passed
+TC-1.3-04,1.3,Add,Negative amount,2 -> amount=-10,"Amount must be greater than 0.",Passed
+TC-1.3-05,1.3,Add,Invalid type,2 -> type=XYZ,"Invalid type. Enter WYDATEK or PRZYCHOD.",Passed
+TC-1.3-06,1.3,Add,Valid transaction,2 -> valid input,Transaction added + ID generated,Passed
+TC-1.3-07,1.3,List,List transactions,1,All transactions displayed,Passed
+TC-1.3-08,1.3,Delete,Delete existing,3 -> valid ID,"Transaction removed.",Passed
+TC-1.3-09,1.3,Delete,Delete non-existing,3 -> 999,"Transaction not found.",Passed
+TC-1.3-10,1.3,Filter,Filter PRZYCHOD,4 -> PRZYCHOD,Only PRZYCHOD shown,Passed
+
+TC-1.4-01,1.4,Persistence,Save to CSV,5,File created in data/transactions.csv,Passed
+TC-1.4-02,1.4,Persistence,Load from CSV,6,Transactions loaded successfully,Passed
+TC-1.4-03,1.4,Persistence,Load replaces memory,Add -> Load,In-memory replaced by file content,Passed
+TC-1.4-04,1.4,Persistence,Missing file,Delete file -> 6,"File not found.",Passed
+TC-1.4-05,1.4,Persistence,Restart persistence,2 -> 5 -> 0 -> restart -> 6 -> 1,Data restored after restart,Passed
