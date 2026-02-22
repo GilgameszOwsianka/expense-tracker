@@ -1,0 +1,20 @@
+TestCaseID,Feature,Scenario,Input,ExpectedResult,ActualResult,Status
+TC-1,Startup,Application start,-,Application starts without errors,OK,Passed
+TC-2,Menu,Invalid menu input,abc,Error message and re-prompt,OK,Passed
+TC-3,Menu,Unknown option,99,"Unknown option. Try again.",OK,Passed
+TC-4,Menu,Exit application,0,Application terminates,OK,Passed
+TC-5,List,List when transactions exist,1,All transactions displayed,OK,Passed
+TC-6,List,List when empty,1,"No transactions yet.",OK,Passed
+TC-7,Add,Invalid amount (non-numeric),abc,"Invalid number. Try again.",OK,Passed
+TC-8,Add,Invalid amount (negative),-10,"Amount must be greater than 0.",OK,Passed
+TC-9,Add,Empty category,"","Value cannot be empty.",OK,Passed
+TC-10,Add,Invalid type,XYZ,"Invalid type. Enter WYDATEK or PRZYCHOD.",OK,Passed
+TC-11,Add,Lowercase type accepted,wydatek,Accepted and converted to uppercase,OK,Passed
+TC-12,Add,Valid transaction added,"50;Food;WYDATEK",Transaction added with generated ID,OK,Passed
+TC-13,Delete,Invalid ID (non-numeric),abc,"Invalid number. Try again.",OK,Passed
+TC-14,Delete,Non-existing ID,999,"Transaction not found.",OK,Passed
+TC-15,Delete,Existing ID removed,1,"Transaction removed.",OK,Passed
+TC-16,Delete,Removing same ID again,1,"Transaction not found.",OK,Passed
+TC-17,Filter,Filter WYDATEK,WYDATEK,Only WYDATEK transactions displayed,OK,Passed
+TC-18,Filter,Filter PRZYCHOD,PRZYCHOD,Only PRZYCHOD transactions displayed,OK,Passed
+TC-19,Filter,Filter no results,WYDATEK,"No transactions found for type.",OK,Passed
