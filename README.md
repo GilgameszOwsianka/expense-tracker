@@ -109,6 +109,24 @@ Wprowadzenie trwałości danych poprzez zapis i odczyt transakcji z pliku CSV.
 - CSV: [`docs/manual-tests/manual-tests-etap-1.4.csv`](docs/manual-tests/manual-tests-etap-1.4.csv)
 
 ---
+## Stage 1 – Manual Testing
+
+Stage 1 includes both incremental manual test documentation (1.1–1.4)
+and a consolidated regression test suite.
+
+### Incremental test documentation:
+- 1.1 – Basic Transaction display
+- 1.2 – Array-based manager
+- 1.3 – Console menu + ArrayList
+- 1.4 – CSV persistence
+
+### Regression suite:
+- Markdown: [`docs/manual-tests/manual-tests-etap-1.md`](docs/manual-tests/manual-tests-etap-1.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-1.csv`](docs/manual-tests/manual-tests-etap-1.csv)
+
+The regression suite verifies full Stage 1 functionality after completing all sub-stages.
+
+---
 
 # ▶️ Jak uruchomić aplikację
 
