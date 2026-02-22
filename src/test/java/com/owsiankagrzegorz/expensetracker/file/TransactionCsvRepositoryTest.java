@@ -44,4 +44,29 @@ class TransactionCsvRepositoryTest {
         assertEquals("2,200.0,Transport,2026-02-23,WYDATEK", lines.get(2));
         assertEquals("3,300.0,Wypłata,2026-02-24,PRZYCHOD", lines.get(3));
     }
+
+    @Test
+    void shouldLoadTransactionsFromCsvFile() throws IOException {
+        // given
+        TransactionCsvRepository repo = new TransactionCsvRepository();
+        Path filePath = tempDir.resolve("transactions.csv");
+
+        List<String> lines = List.of(
+                "id,amount,category,date,type",
+                "1,100.0,Jedzenie,2026-02-22,WYDATEK",
+                "2,200.0,Transport,2026-02-23,WYDATEK",
+                "3,300.0,Wypłata,2026-02-24,PRZYCHOD"
+        );
+
+        Files.write(filePath, lines);
+
+        // when
+        List<Transaction> transactions = repo.load(filePath);
+
+        // then
+        assertEquals(3, transactions.size());
+        assertEquals(1L, transactions.get(0).getId());
+        assertEquals("Transport", transactions.get(1).getCategory());
+        assertEquals("PRZYCHOD", transactions.get(2).getType());
+    }
 }
