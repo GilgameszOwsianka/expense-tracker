@@ -1,70 +1,96 @@
-# Expense Tracker
+# 💰 Expense Tracker
 
-Projekt służący do nauki Javy i testów manualnych oraz automatyzujących.  
-Rozwijany od konsolowej aplikacji po pełną aplikację webową z Spring Boot, Hibernate i frontendem.
+Projekt edukacyjny rozwijany etapowo w celu nauki:
 
-## Role gałęzi
+- Java (OOP)
+- Maven
+- Git & GitHub PR workflow
+- Testy jednostkowe (JUnit 5)
+- Testy manualne (Markdown + CSV)
 
-- **`main`** – zawiera aktualny stan projektu, gotowy do uruchomienia.
-- **`feature/console-single-transaction`** – historia zmian dla etapu 1.1 (pojedyncza transakcja).
-- **`feature/console-array-transactions`** – historia zmian dla etapu 1.2 (tablica transakcji).
-- **`setup`** – początkowa konfiguracja projektu Maven, Git, struktura katalogów.
+Docelowo projekt będzie rozwinięty do aplikacji webowej z użyciem:
+Spring Boot, REST API, JPA, Hibernate oraz Docker.
 
-## Etap 1.1 – Pojedyncza transakcja (konsola)
+---
 
-### Cel
-Pokazanie podstaw Javy, enkapsulacji, tworzenia obiektów i testów jednostkowych.
+# 🌿 Strategia gałęzi
 
-### Klasy
-- **`Transaction`** – reprezentuje pojedynczą transakcję:
-    - amount (kwota)
-    - category (kategoria)
-    - date (data, typ `LocalDate`)
-    - type (WYDATEK / PRZYCHÓD)
+- **`main`** – stabilna wersja projektu
+- **feature/*`** – rozwój poszczególnych etapów
+- PR workflow – każdy etap rozwijany na osobnej gałęzi i mergowany do `main`
 
-- **`ExpenseTrackerApp`** – klasa uruchamiająca aplikację konsolową i wyświetlająca pojedynczą transakcję.
+---
 
-### Testy jednostkowe
-- **`TransactionTest`** – sprawdza poprawne utworzenie obiektu Transaction (JUnit 5).
+# 🧩 Etap 1.1 – Pojedyncza transakcja (konsola)
 
-### Testy manualne
-- Plik **Markdown**: [`docs/manual-tests/manual-tests-etap-1.2.md`](docs/manual-tests/manual-tests-etap-1.2)
-- Plik **CSV**: [`docs/manual-tests/manual-tests-etap-1.2.csv`](docs/manual-tests/manual-tests-etap-1.2.csv)
+## Cel
+Podstawy OOP i testów jednostkowych.
 
-Opisują kroki manualne, oczekiwane wyniki i umożliwiają łatwe dokumentowanie testów konsolowych.
+## Klasy
+- `Transaction`
+- `ExpenseTrackerApp`
 
-## Etap 1.2 – Tablica transakcji (konsola)
+## Testy jednostkowe
+- `TransactionTest`
 
-### Cel
+## Testy manualne
+- Markdown: `docs/manual-tests/manual-tests-etap-1.1.md`
+- CSV: `docs/manual-tests/manual-tests-etap-1.1.csv`
 
-Sprawdzenie poprawności działania tablicy transakcji w klasie TransactionArrayManager:
+---
 
-- dodawanie transakcji do tablicy,
-- wyświetlanie wszystkich transakcji,
-- filtrowanie po typie,
-- obsługa pełnej tablicy.
+# 🧩 Etap 1.2 – Tablica transakcji (Array)
 
-### Klasy
+## Cel
+Zarządzanie wieloma transakcjami w oparciu o tablicę.
 
-- **`TransactionArrayManager`** – zarządza tablicą transakcji, dodaje, listuje i filtruje.
-- **`ExpenseTrackerApp`** – rozszerzona o wywołania tablicy transakcji i filtrowanie.
+## Klasy
+- `TransactionArrayManager`
+- Rozszerzona `ExpenseTrackerApp`
 
-### Testy jednostkowe
+## Funkcjonalności
+- Dodawanie transakcji
+- Listowanie
+- Filtrowanie po typie
+- Obsługa pełnej tablicy
 
-- **`TransactionArrayManagerTest`** – testy JUnit 5:
-- dodawanie transakcji,
-- listowanie wszystkich transakcji,
-- filtrowanie po typie,
-- obsługa pełnej tablicy.
+## Testy jednostkowe
+- `TransactionArrayManagerTest`
 
-### Testy manualne
-- Plik **Markdown**: [`docs/manual-tests/manual-tests-etap-1.2.md`](docs/manual-tests/manual-tests-etap-1.2)
-- Plik **CSV**: [`docs/manual-tests/manual-tests-etap-1.2.csv`](docs/manual-tests/manual-tests-etap-1.2.csv)
+## Testy manualne
+- Markdown: [`docs/manual-tests/manual-tests-etap-1.2.md`](docs/manual-tests/manual-tests-etap-1.2.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-1.2.csv`](docs/manual-tests/manual-tests-etap-1.2.csv)
 
-Opisują kroki manualne, oczekiwane wyniki i umożliwiają łatwe dokumentowanie testów konsolowych.
+---
 
-### Przykład uruchomienia
+# 🧩 Etap 1.3 – ArrayList + Menu Konsolowe
+
+## Cel
+Przejście z tablicy na `ArrayList` oraz budowa profesjonalnego menu konsolowego.
+
+## Klasy
+- `TransactionListManager`
+- Refaktoryzowana `ExpenseTrackerApp`
+
+## Funkcjonalności
+- Interaktywne menu (`Scanner + while + switch`)
+- Listowanie transakcji
+- Dodawanie transakcji (in-memory)
+- Usuwanie transakcji po ID
+- Filtrowanie po typie
+- Walidacja danych wejściowych
+
+## Testy jednostkowe
+- `TransactionListManagerTest`
+
+## Testy manualne
+- Markdown: [`docs/manual-tests/manual-tests-etap-1.3.md`](docs/manual-tests/manual-tests-etap-1.3.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-1.3.csv`](docs/manual-tests/manual-tests-etap-1.3.csv)
+
+---
+
+# ▶️ Jak uruchomić aplikację
+
 ```bash
-# Uruchomienie aplikacji w IntelliJ lub:
-mvn compile exec:java -Dexec.mainClass="com.owsiankagrzegorz.expensetracker.app.ExpenseTrackerApp"
-
+mvn clean compile
+mvn exec:java -Dexec.mainClass="com.owsiankagrzegorz.expensetracker.app.ExpenseTrackerApp"
