@@ -1,0 +1,8 @@
+TestCaseID,Feature,Scenario,Input,ExpectedResult,ActualResult,Status
+TC-1,Save,Save with existing transactions,5,File created + success message,OK,Passed
+TC-2,Save,Save overwrites existing file,5,File overwritten without errors,OK,Passed
+TC-3,Load,Load existing file,6,Transactions loaded + count shown,OK,Passed
+TC-4,Load,Load then list,"6 -> 1",Loaded transactions displayed,OK,Passed
+TC-5,Load,Load replaces in-memory list,"2(add) -> 6 -> 1",In-memory replaced by file contents,OK,Passed
+TC-6,Error,Load missing file,6,"File not found" message,OK,Passed
+TC-7,Persistence,Restart persistence check,"2 -> 5 -> 0 -> restart -> 6 -> 1",Data restored after restart,OK,Passed

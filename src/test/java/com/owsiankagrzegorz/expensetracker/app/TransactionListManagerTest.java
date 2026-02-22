@@ -3,10 +3,8 @@ package com.owsiankagrzegorz.expensetracker.app;
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionListManagerTest {
@@ -87,5 +85,20 @@ class TransactionListManagerTest {
         assertEquals(1, przychody.size());
         assertEquals("Wypłata", przychody.get(0).getCategory());
         assertEquals(3L, przychody.get(0).getId());
+    }
+
+    @Test
+    void shouldClearAndAddTransactionsInBulk() {
+        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
+        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), "WYDATEK");
+
+        manager.addTransaction(t1);
+        assertEquals(1, manager.getSize());
+
+        manager.clearTransactions();
+        assertEquals(0, manager.getSize());
+
+        manager.addTransactions(List.of(t1, t2));
+        assertEquals(2, manager.getSize());
     }
 }

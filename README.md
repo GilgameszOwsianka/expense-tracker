@@ -34,8 +34,8 @@ Podstawy OOP i testów jednostkowych.
 - `TransactionTest`
 
 ## Testy manualne
-- Markdown: `docs/manual-tests/manual-tests-etap-1.1.md`
-- CSV: `docs/manual-tests/manual-tests-etap-1.1.csv`
+- Markdown: [`docs/manual-tests/manual-tests-etap-1.1.md`](docs/manual-tests/manual-tests-etap-1.1.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-1.1.csv`](docs/manual-tests/manual-tests-etap-1.1.csv)
 
 ---
 
@@ -86,6 +86,27 @@ Przejście z tablicy na `ArrayList` oraz budowa profesjonalnego menu konsolowego
 ## Testy manualne
 - Markdown: [`docs/manual-tests/manual-tests-etap-1.3.md`](docs/manual-tests/manual-tests-etap-1.3.md)
 - CSV: [`docs/manual-tests/manual-tests-etap-1.3.csv`](docs/manual-tests/manual-tests-etap-1.3.csv)
+
+---
+
+# 🧩 Etap 1.4 – CSV File Persistence
+
+## Cel
+Wprowadzenie trwałości danych poprzez zapis i odczyt transakcji z pliku CSV.
+
+## Nowe elementy
+- `TransactionCsvRepository`
+- Zapis do pliku `data/transactions.csv`
+- Odczyt z pliku CSV
+- Obsługa braku pliku
+- Integracja z menu (opcje Save / Load)
+
+## Testy jednostkowe
+- `TransactionCsvRepositoryTest`
+
+## Testy manualne
+- Markdown: [`docs/manual-tests/manual-tests-etap-1.4.md`](docs/manual-tests/manual-tests-etap-1.4.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-1.4.csv`](docs/manual-tests/manual-tests-etap-1.4.csv)
 
 ---
 

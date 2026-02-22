@@ -34,4 +34,12 @@ public class TransactionListManager {
     public int getSize() {
         return transactions.size();
     }
+
+    public void clearTransactions() {
+        transactions.clear();
+    }
+
+    public void addTransactions(List<Transaction> transactionsToAdd) {
+        transactions.addAll(transactionsToAdd);
+    }
 }

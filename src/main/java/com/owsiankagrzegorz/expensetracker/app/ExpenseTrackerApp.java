@@ -27,6 +27,8 @@ public class ExpenseTrackerApp {
                 case 2 -> handleAddTransaction(manager, scanner);
                 case 3 -> handleDelete(manager, scanner);
                 case 4 -> handleFilter(manager, scanner);
+                case 5 -> handleSaveToCsv(manager);
+                case 6 -> handleLoadFromCsv(manager);
                 case 0 -> {
                     System.out.println("Bye!");
                     running = false;
@@ -63,6 +65,8 @@ public class ExpenseTrackerApp {
         System.out.println("2) Add transaction");
         System.out.println("3) Delete transaction by id");
         System.out.println("4) Filter transactions");
+        System.out.println("5) Save transactions to CSV");
+        System.out.println("6) Load transactions from CSV");
         System.out.println("0) Exit");
         System.out.print("Choose option: ");
     }
@@ -179,5 +183,35 @@ public class ExpenseTrackerApp {
         manager.addTransaction(transaction);
 
         System.out.println("Transaction added with ID: " + id);
+    }
+
+    private static void handleSaveToCsv(TransactionListManager manager) {
+        var repo = new com.owsiankagrzegorz.expensetracker.file.TransactionCsvRepository();
+        java.nio.file.Path path = java.nio.file.Path.of("data", "transactions.csv");
+
+        try {
+            java.nio.file.Files.createDirectories(path.getParent());
+            repo.save(path, manager.getAllTransactions());
+            System.out.println("Saved to: " + path.toAbsolutePath());
+        } catch (java.io.IOException e) {
+            System.out.println("Error while saving file: " + e.getMessage());
+        }
+    }
+
+    private static void handleLoadFromCsv(TransactionListManager manager) {
+        var repo = new com.owsiankagrzegorz.expensetracker.file.TransactionCsvRepository();
+        java.nio.file.Path path = java.nio.file.Path.of("data", "transactions.csv");
+
+        try {
+            var loaded = repo.load(path);
+            manager.clearTransactions();
+            manager.addTransactions(loaded);
+
+            System.out.println("Loaded " + loaded.size() + " transactions from: " + path.toAbsolutePath());
+        } catch (java.nio.file.NoSuchFileException e) {
+            System.out.println("File not found: " + path.toAbsolutePath());
+        } catch (java.io.IOException e) {
+            System.out.println("Error while loading file: " + e.getMessage());
+        }
     }
 }
