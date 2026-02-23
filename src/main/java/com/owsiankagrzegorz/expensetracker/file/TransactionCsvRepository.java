@@ -1,6 +1,7 @@
 package com.owsiankagrzegorz.expensetracker.file;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
+import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class TransactionCsvRepository {
         double amount = Double.parseDouble(parts[1]);
         String category = parts[2];
         java.time.LocalDate date = java.time.LocalDate.parse(parts[3]);
-        String type = parts[4];
+        TransactionType type = TransactionType.fromString(parts[4]);
 
         return new Transaction(id, amount, category, date, type);
     }
@@ -59,6 +60,6 @@ public class TransactionCsvRepository {
                 + t.getAmount() + ","
                 + t.getCategory() + ","
                 + t.getDate() + ","
-                + t.getType();
+                + t.getType().name();
     }
 }
