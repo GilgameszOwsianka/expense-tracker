@@ -124,7 +124,30 @@ and a consolidated regression test suite.
 - Markdown: [`docs/manual-tests/manual-tests-etap-1.md`](docs/manual-tests/manual-tests-etap-1.md)
 - CSV: [`docs/manual-tests/manual-tests-etap-1.csv`](docs/manual-tests/manual-tests-etap-1.csv)
 
-The regression suite verifies full Stage 1 functionality after completing all sub-stages.
+The regression suite verifies full Stage 1 functionality after completing all substages.
+
+---
+
+# Etap 2.0 – Refactor typu transakcji (enum)
+## Cel
+Refactor pola `Transaction.type` z `String` na `TransactionType` enum w celu:
+- eliminacji "magic strings"
+- bezpieczeństwa typów (compile-time)
+- prostszego filtrowania (porównanie enumów)
+- stabilniejszego zapisu/odczytu CSV
+
+## Zmiany
+- `Transaction.type`: `String` -> `TransactionType`
+- Dodano parser: `TransactionType.fromString(...)` (obsługa małych liter i `PRZYCHÓD`)
+- CSV zapisuje typ jako `enum.name()` i wczytuje przez `fromString(...)`
+- Menu konsolowe i filtrowanie działają na enumie
+
+## Testy jednostkowe
+- `TransactionListManagerTest` (zaktualizowany pod enum)
+
+## Testy manualne
+- Markdown: [`docs/manual-tests/manual-tests-etap-2.0.md`](docs/manual-tests/manual-tests-etap-2.0.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-2.0.csv`](docs/manual-tests/manual-tests-etap-2.0.csv)
 
 ---
 

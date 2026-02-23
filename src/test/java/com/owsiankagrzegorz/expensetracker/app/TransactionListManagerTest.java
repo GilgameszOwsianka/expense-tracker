@@ -1,10 +1,13 @@
 package com.owsiankagrzegorz.expensetracker.app;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
+import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.time.LocalDate;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TransactionListManagerTest {
@@ -18,7 +21,7 @@ class TransactionListManagerTest {
 
     @Test
     void shouldAddTransaction() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
+        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
 
         manager.addTransaction(t1);
 
@@ -30,8 +33,8 @@ class TransactionListManagerTest {
 
     @Test
     void shouldReturnAllTransactionsInInsertOrder() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
-        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), "WYDATEK");
+        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK);
 
         manager.addTransaction(t1);
         manager.addTransaction(t2);
@@ -44,8 +47,8 @@ class TransactionListManagerTest {
 
     @Test
     void shouldRemoveTransactionByIdWhenExists() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
-        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), "WYDATEK");
+        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK);
 
         manager.addTransaction(t1);
         manager.addTransaction(t2);
@@ -53,13 +56,15 @@ class TransactionListManagerTest {
         boolean removed = manager.removeTransactionById(2L);
 
         assertTrue(removed);
-        assertEquals(1, manager.getAllTransactions().size());
-        assertEquals(1L, manager.getAllTransactions().get(0).getId());
+        List<Transaction> all = manager.getAllTransactions();
+        assertEquals(1, all.size());
+        assertEquals(1L, all.get(0).getId());
     }
 
     @Test
     void shouldReturnFalseWhenRemovingNonExistingId() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
+        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+
         manager.addTransaction(t1);
 
         boolean removed = manager.removeTransactionById(999L);
@@ -70,18 +75,18 @@ class TransactionListManagerTest {
 
     @Test
     void shouldFilterByType() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
-        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), "WYDATEK");
-        Transaction t3 = new Transaction(3L, 500.0, "Wypłata", LocalDate.now(), "PRZYCHOD");
+        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t3 = new Transaction(3L, 500.0, "Wypłata", LocalDate.now(), TransactionType.PRZYCHOD);
 
         manager.addTransaction(t1);
         manager.addTransaction(t2);
         manager.addTransaction(t3);
 
-        List<Transaction> wydatki = manager.filterByType("WYDATEK");
+        List<Transaction> wydatki = manager.filterByType(TransactionType.WYDATEK);
         assertEquals(2, wydatki.size());
 
-        List<Transaction> przychody = manager.filterByType("PRZYCHOD");
+        List<Transaction> przychody = manager.filterByType(TransactionType.PRZYCHOD);
         assertEquals(1, przychody.size());
         assertEquals("Wypłata", przychody.get(0).getCategory());
         assertEquals(3L, przychody.get(0).getId());
@@ -89,8 +94,8 @@ class TransactionListManagerTest {
 
     @Test
     void shouldClearAndAddTransactionsInBulk() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), "WYDATEK");
-        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), "WYDATEK");
+        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK);
 
         manager.addTransaction(t1);
         assertEquals(1, manager.getSize());

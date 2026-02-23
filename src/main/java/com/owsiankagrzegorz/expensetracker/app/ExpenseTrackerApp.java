@@ -1,6 +1,7 @@
 package com.owsiankagrzegorz.expensetracker.app;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
+import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -11,13 +12,13 @@ public class ExpenseTrackerApp {
         TransactionListManager manager = new TransactionListManager();
 
         // TEMP seed data (for manual testing) - we'll clean this up in a later commit
-        manager.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), "WYDATEK"));
-        manager.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.now(), "WYDATEK"));
-        manager.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.now(), "PRZYCHOD"));
+        manager.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
+        manager.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK));
+        manager.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.now(), TransactionType.PRZYCHOD));
 
         Scanner scanner = new Scanner(System.in);
-
         boolean running = true;
+
         while (running) {
             printMenu();
             int choice = readMenuChoice(scanner);
@@ -33,7 +34,7 @@ public class ExpenseTrackerApp {
                     System.out.println("Bye!");
                     running = false;
                 }
-                default -> System.out.println("Unknown option. Try again.");
+                default -> System.out.println("Unknown option.\nTry again.");
             }
         }
 
@@ -42,8 +43,7 @@ public class ExpenseTrackerApp {
 
     private static void handleFilter(TransactionListManager manager, Scanner scanner) {
         System.out.println("\nFilter transactions by type");
-
-        String type = readTransactionTypeString(scanner, "Enter type (WYDATEK/PRZYCHOD): ");
+        TransactionType type = readTransactionType(scanner, "Enter type (WYDATEK/PRZYCHOD): ");
 
         var filtered = manager.filterByType(type);
 
@@ -77,7 +77,7 @@ public class ExpenseTrackerApp {
             try {
                 return Integer.parseInt(input);
             } catch (NumberFormatException e) {
-                System.out.print("Invalid input. Enter a number: ");
+                System.out.print("Invalid input.\nEnter a number: ");
             }
         }
     }
@@ -113,7 +113,7 @@ public class ExpenseTrackerApp {
             try {
                 return Long.parseLong(input);
             } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again.");
+                System.out.println("Invalid number.\nTry again.");
             }
         }
     }
@@ -122,7 +122,6 @@ public class ExpenseTrackerApp {
         while (true) {
             System.out.print(prompt);
             String input = scanner.nextLine().trim();
-
             try {
                 double value = Double.parseDouble(input);
                 if (value <= 0) {
@@ -131,7 +130,7 @@ public class ExpenseTrackerApp {
                 }
                 return value;
             } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again.");
+                System.out.println("Invalid number.\nTry again.");
             }
         }
     }
@@ -143,20 +142,20 @@ public class ExpenseTrackerApp {
             if (!input.isEmpty()) {
                 return input;
             }
-            System.out.println("Value cannot be empty. Try again.");
+            System.out.println("Value cannot be empty.\nTry again.");
         }
     }
 
-    private static String readTransactionTypeString(Scanner scanner, String prompt) {
+    private static TransactionType readTransactionType(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
-            String input = scanner.nextLine().trim().toUpperCase();
+            String input = scanner.nextLine();
 
-            if (input.equals("WYDATEK") || input.equals("PRZYCHOD")) {
-                return input;
+            try {
+                return TransactionType.fromString(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid type.\nEnter WYDATEK or PRZYCHOD.");
             }
-
-            System.out.println("Invalid type. Enter WYDATEK or PRZYCHOD.");
         }
     }
 
@@ -175,11 +174,11 @@ public class ExpenseTrackerApp {
 
         double amount = readPositiveDouble(scanner, "Amount: ");
         String category = readNonEmptyString(scanner, "Category: ");
-        String type = readTransactionTypeString(scanner, "Type (WYDATEK/PRZYCHOD): ");
+        TransactionType type = readTransactionType(scanner, "Type (WYDATEK/PRZYCHOD): ");
 
         long id = nextTransactionId(manager);
-        Transaction transaction = new Transaction(id, amount, category, LocalDate.now(), type);
 
+        Transaction transaction = new Transaction(id, amount, category, LocalDate.now(), type);
         manager.addTransaction(transaction);
 
         System.out.println("Transaction added with ID: " + id);
@@ -206,7 +205,6 @@ public class ExpenseTrackerApp {
             var loaded = repo.load(path);
             manager.clearTransactions();
             manager.addTransactions(loaded);
-
             System.out.println("Loaded " + loaded.size() + " transactions from: " + path.toAbsolutePath());
         } catch (java.nio.file.NoSuchFileException e) {
             System.out.println("File not found: " + path.toAbsolutePath());

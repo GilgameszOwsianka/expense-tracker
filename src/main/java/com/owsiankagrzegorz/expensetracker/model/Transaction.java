@@ -6,11 +6,11 @@ public class Transaction {
     private double amount;
     private String category;
     private LocalDate date;
-    private String type; // "WYDATEK" lub "Przychód"
+    private TransactionType type;
     private long id;
 
     //Konstruktor
-    public Transaction (long id, double amount, String category, LocalDate date, String type) {
+    public Transaction (long id, double amount, String category, LocalDate date, TransactionType type) {
         this.id = id;
         this.amount = amount;
         this.category = category;
@@ -36,8 +36,8 @@ public class Transaction {
     public LocalDate getDate() {return date;}
     public void setDate(LocalDate date) {this.date = date;}
 
-    public String getType() {return type;}
-    public void setType(String type) {this.type = type;}
+    public TransactionType getType() {return type;}
+    public void setType(TransactionType type) {this.type = type;}
 
     //toString
     @Override
