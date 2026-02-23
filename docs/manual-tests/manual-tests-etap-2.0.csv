@@ -1,0 +1,11 @@
+TestCaseID,Feature,Scenario,Input,ExpectedResult,ActualResult,Status
+TC-2.0-01,Type Parsing,Lowercase WYDATEK accepted,wydatek,Accepted and converted to WYDATEK,OK,Passed
+TC-2.0-02,Type Parsing,Uppercase WYDATEK accepted,WYDATEK,Accepted,OK,Passed
+TC-2.0-03,Type Parsing,Lowercase PRZYCHOD accepted,przychod,Accepted and converted to PRZYCHOD,OK,Passed
+TC-2.0-04,Type Parsing,Polish diacritics accepted,przychód,Accepted and converted to PRZYCHOD,OK,Passed
+TC-2.0-05,Type Parsing,Invalid type rejected,ABC,"Invalid type. Enter WYDATEK or PRZYCHOD.",OK,Passed
+TC-2.0-06,Filter,Filter WYDATEK,WYDATEK,Only WYDATEK transactions displayed,OK,Passed
+TC-2.0-07,Filter,Filter PRZYCHOD,PRZYCHOD,Only PRZYCHOD transactions displayed,OK,Passed
+TC-2.0-08,CSV,Save enum type,5,File created/overwritten in data/transactions.csv,OK,Passed
+TC-2.0-09,CSV,Load enum type,6,Transactions loaded with correct enum types,OK,Passed
+TC-2.0-10,E2E,Restart persistence with PRZYCHÓD,"2->type=przychód; 5; 0; restart; 6; 1",Data restored and type displayed as PRZYCHOD,OK,Passed
