@@ -1,6 +1,7 @@
 package com.owsiankagrzegorz.expensetracker.app;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
+import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +22,10 @@ public class TransactionListManager {
         return transactions.removeIf(t -> t.getId() == id);
     }
 
-    public List<Transaction> filterByType(String type) {
+    public List<Transaction> filterByType(TransactionType type) {
         List<Transaction> result = new ArrayList<>();
         for (Transaction t : transactions) {
-            if (t.getType().equals(type)) {
+            if (t.getType() == type) {
                 result.add(t);
             }
         }
