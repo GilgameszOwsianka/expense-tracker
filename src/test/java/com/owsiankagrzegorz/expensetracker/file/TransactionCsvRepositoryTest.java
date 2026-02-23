@@ -1,6 +1,7 @@
 package com.owsiankagrzegorz.expensetracker.file;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
+import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -24,9 +25,9 @@ class TransactionCsvRepositoryTest {
         Path filePath = tempDir.resolve("transactions.csv");
 
         List<Transaction> transactions = List.of(
-                new Transaction(1L, 100.0, "Jedzenie", LocalDate.of(2026, 2, 22), "WYDATEK"),
-                new Transaction(2L, 200.0, "Transport", LocalDate.of(2026, 2, 23), "WYDATEK"),
-                new Transaction(3L, 300.0, "Wypłata", LocalDate.of(2026, 2, 24), "PRZYCHOD")
+                new Transaction(1L, 100.0, "Jedzenie", LocalDate.of(2026, 2, 22), TransactionType.WYDATEK),
+                new Transaction(2L, 200.0, "Transport", LocalDate.of(2026, 2, 23), TransactionType.WYDATEK),
+                new Transaction(3L, 300.0, "Wypłata", LocalDate.of(2026, 2, 24), TransactionType.PRZYCHOD)
         );
 
         // when
@@ -67,6 +68,6 @@ class TransactionCsvRepositoryTest {
         assertEquals(3, transactions.size());
         assertEquals(1L, transactions.get(0).getId());
         assertEquals("Transport", transactions.get(1).getCategory());
-        assertEquals("PRZYCHOD", transactions.get(2).getType());
+        assertEquals(TransactionType.PRZYCHOD, transactions.get(2).getType());
     }
 }
