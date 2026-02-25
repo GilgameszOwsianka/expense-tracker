@@ -12,7 +12,10 @@ import java.util.Scanner;
 public class ExpenseTrackerApp {
 
     public static void main(String[] args) {
-        ExpenseTrackerService service = new ExpenseTrackerService(new InMemoryTransactionRepository());
+        ExpenseTrackerService service = new ExpenseTrackerService(
+                new InMemoryTransactionRepository(),
+                new CsvTransactionPersistence()
+        );
 
         // TEMP seed data (for manual testing) - we'll clean this up in a later commit
         service.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
@@ -178,12 +181,11 @@ public class ExpenseTrackerApp {
     }
 
     private static void handleSaveToCsv(ExpenseTrackerService service) {
-        var repo = new CsvTransactionPersistence();
         java.nio.file.Path path = java.nio.file.Path.of("data", "transactions.csv");
 
         try {
             java.nio.file.Files.createDirectories(path.getParent());
-            repo.save(path, service.getAllTransactions());
+            service.save(path);
             System.out.println("Saved to: " + path.toAbsolutePath());
         } catch (java.io.IOException e) {
             System.out.println("Error while saving file: " + e.getMessage());
@@ -191,13 +193,11 @@ public class ExpenseTrackerApp {
     }
 
     private static void handleLoadFromCsv(ExpenseTrackerService service) {
-        var repo = new CsvTransactionPersistence();
         java.nio.file.Path path = java.nio.file.Path.of("data", "transactions.csv");
 
         try {
-            var loaded = repo.load(path);
-            service.replaceAllTransactions(loaded);
-            System.out.println("Loaded " + loaded.size() + " transactions from: " + path.toAbsolutePath());
+            int loadedCount = service.load(path);
+            System.out.println("Loaded " + loadedCount + " transactions from: " + path.toAbsolutePath());
         } catch (java.nio.file.NoSuchFileException e) {
             System.out.println("File not found: " + path.toAbsolutePath());
         } catch (java.io.IOException e) {

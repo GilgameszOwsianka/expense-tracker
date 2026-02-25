@@ -2,16 +2,21 @@ package com.owsiankagrzegorz.expensetracker.service;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
+import com.owsiankagrzegorz.expensetracker.persistence.TransactionPersistence;
 import com.owsiankagrzegorz.expensetracker.repository.TransactionRepository;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExpenseTrackerService {
     private final TransactionRepository repository;
+    private final TransactionPersistence persistence;
 
-    public ExpenseTrackerService(TransactionRepository repository) {
+    public ExpenseTrackerService(TransactionRepository repository, TransactionPersistence persistence) {
         this.repository = repository;
+        this.persistence = persistence;
     }
 
     public void addTransaction(Transaction transaction) {
@@ -56,5 +61,15 @@ public class ExpenseTrackerService {
             }
         }
         return maxId + 1;
+    }
+
+    public void save(Path path) throws IOException {
+        persistence.save(path, repository.findAll());
+    }
+
+    public int load(Path path) throws IOException {
+        List<Transaction> loaded = persistence.load(path);
+        repository.replaceAll(loaded);
+        return loaded.size();
     }
 }

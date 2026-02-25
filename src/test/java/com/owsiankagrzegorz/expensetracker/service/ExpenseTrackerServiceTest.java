@@ -17,7 +17,10 @@ class ExpenseTrackerServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ExpenseTrackerService(new InMemoryTransactionRepository());
+        service = new ExpenseTrackerService(
+                new InMemoryTransactionRepository(),
+                new com.owsiankagrzegorz.expensetracker.persistence.CsvTransactionPersistence()
+        );
     }
 
     @Test
