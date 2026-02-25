@@ -1,0 +1,6 @@
+TestCaseID,Feature,Scenario,Input,ExpectedResult,ActualResult,Status
+TC-2.1-01,Service Layer,Add and list transaction,"2 -> amount=100, category=Jedzenie, type=wydatek; 1",Transaction appears on list,OK,Passed
+TC-2.1-02,Service Layer,Delete by id,"Add 2 tx; 3 -> id=2; 1",Second transaction removed,OK,Passed
+TC-2.1-03,Service Layer,Filter WYDATEK,"Add WYDATEK+PRZYCHOD; 4 -> WYDATEK",Only WYDATEK displayed,OK,Passed
+TC-2.1-04,Service Layer,Filter PRZYCHOD,"Add WYDATEK+PRZYCHOD; 4 -> PRZYCHOD",Only PRZYCHOD displayed,OK,Passed
+TC-2.1-05,Persistence via Service,Save and load after restart,"Add 2 tx; 5; 0; restart; 6; 1",Transactions restored correctly,OK,Passed
