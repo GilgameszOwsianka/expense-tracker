@@ -2,6 +2,8 @@ package com.owsiankagrzegorz.expensetracker.app;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
+import com.owsiankagrzegorz.expensetracker.repository.InMemoryTransactionRepository;
+import com.owsiankagrzegorz.expensetracker.service.ExpenseTrackerService;
 
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -9,12 +11,12 @@ import java.util.Scanner;
 public class ExpenseTrackerApp {
 
     public static void main(String[] args) {
-        TransactionListManager manager = new TransactionListManager();
+        ExpenseTrackerService service = new ExpenseTrackerService(new InMemoryTransactionRepository());
 
         // TEMP seed data (for manual testing) - we'll clean this up in a later commit
-        manager.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
-        manager.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK));
-        manager.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.now(), TransactionType.PRZYCHOD));
+        service.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
+        service.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK));
+        service.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.now(), TransactionType.PRZYCHOD));
 
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
@@ -24,12 +26,12 @@ public class ExpenseTrackerApp {
             int choice = readMenuChoice(scanner);
 
             switch (choice) {
-                case 1 -> handleList(manager);
-                case 2 -> handleAddTransaction(manager, scanner);
-                case 3 -> handleDelete(manager, scanner);
-                case 4 -> handleFilter(manager, scanner);
-                case 5 -> handleSaveToCsv(manager);
-                case 6 -> handleLoadFromCsv(manager);
+                case 1 -> handleList(service);
+                case 2 -> handleAddTransaction(service, scanner);
+                case 3 -> handleDelete(service, scanner);
+                case 4 -> handleFilter(service, scanner);
+                case 5 -> handleSaveToCsv(service);
+                case 6 -> handleLoadFromCsv(service);
                 case 0 -> {
                     System.out.println("Bye!");
                     running = false;
@@ -41,11 +43,11 @@ public class ExpenseTrackerApp {
         scanner.close();
     }
 
-    private static void handleFilter(TransactionListManager manager, Scanner scanner) {
+    private static void handleFilter(ExpenseTrackerService service, Scanner scanner) {
         System.out.println("\nFilter transactions by type");
         TransactionType type = readTransactionType(scanner, "Enter type (WYDATEK/PRZYCHOD): ");
 
-        var filtered = manager.filterByType(type);
+        var filtered = service.filterByType(type);
 
         if (filtered.isEmpty()) {
             System.out.println("No transactions found for type: " + type);
@@ -82,22 +84,22 @@ public class ExpenseTrackerApp {
         }
     }
 
-    private static void handleList(TransactionListManager manager) {
+    private static void handleList(ExpenseTrackerService service) {
         System.out.println("\nAll transactions:");
 
-        if (manager.getAllTransactions().isEmpty()) {
+        if (service.getAllTransactions().isEmpty()) {
             System.out.println("No transactions yet.");
             return;
         }
 
-        for (Transaction t : manager.getAllTransactions()) {
+        for (Transaction t : service.getAllTransactions()) {
             System.out.println(t);
         }
     }
 
-    private static void handleDelete(TransactionListManager manager, Scanner scanner) {
+    private static void handleDelete(ExpenseTrackerService service, Scanner scanner) {
         long id = readLong(scanner, "Enter transaction ID to delete: ");
-        boolean removed = manager.removeTransactionById(id);
+        boolean removed = service.removeTransactionById(id);
 
         if (removed) {
             System.out.println("Transaction removed.");
@@ -159,52 +161,41 @@ public class ExpenseTrackerApp {
         }
     }
 
-    private static long nextTransactionId(TransactionListManager manager) {
-        long maxId = 0L;
-        for (Transaction t : manager.getAllTransactions()) {
-            if (t.getId() > maxId) {
-                maxId = t.getId();
-            }
-        }
-        return maxId + 1;
-    }
-
-    private static void handleAddTransaction(TransactionListManager manager, Scanner scanner) {
+    private static void handleAddTransaction(ExpenseTrackerService service, Scanner scanner) {
         System.out.println("\nAdd new transaction");
 
         double amount = readPositiveDouble(scanner, "Amount: ");
         String category = readNonEmptyString(scanner, "Category: ");
         TransactionType type = readTransactionType(scanner, "Type (WYDATEK/PRZYCHOD): ");
 
-        long id = nextTransactionId(manager);
+        long id = service.nextTransactionId();
 
         Transaction transaction = new Transaction(id, amount, category, LocalDate.now(), type);
-        manager.addTransaction(transaction);
+        service.addTransaction(transaction);
 
         System.out.println("Transaction added with ID: " + id);
     }
 
-    private static void handleSaveToCsv(TransactionListManager manager) {
+    private static void handleSaveToCsv(ExpenseTrackerService service) {
         var repo = new com.owsiankagrzegorz.expensetracker.file.TransactionCsvRepository();
         java.nio.file.Path path = java.nio.file.Path.of("data", "transactions.csv");
 
         try {
             java.nio.file.Files.createDirectories(path.getParent());
-            repo.save(path, manager.getAllTransactions());
+            repo.save(path, service.getAllTransactions());
             System.out.println("Saved to: " + path.toAbsolutePath());
         } catch (java.io.IOException e) {
             System.out.println("Error while saving file: " + e.getMessage());
         }
     }
 
-    private static void handleLoadFromCsv(TransactionListManager manager) {
+    private static void handleLoadFromCsv(ExpenseTrackerService service) {
         var repo = new com.owsiankagrzegorz.expensetracker.file.TransactionCsvRepository();
         java.nio.file.Path path = java.nio.file.Path.of("data", "transactions.csv");
 
         try {
             var loaded = repo.load(path);
-            manager.clearTransactions();
-            manager.addTransactions(loaded);
+            service.replaceAllTransactions(loaded);
             System.out.println("Loaded " + loaded.size() + " transactions from: " + path.toAbsolutePath());
         } catch (java.nio.file.NoSuchFileException e) {
             System.out.println("File not found: " + path.toAbsolutePath());
