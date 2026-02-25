@@ -151,6 +151,28 @@ Refactor pola `Transaction.type` z `String` na `TransactionType` enum w celu:
 
 ---
 
+# Etap 2.1 – Separacja warstw: Service / Repository / Persistence
+
+## Cel
+Wprowadzenie podstawowej architektury (Ports & Adapters):
+- UI deleguje przypadki użycia do warstwy serwisu
+- Dane w runtime przechowywane są przez `TransactionRepository` (InMemory)
+- Zapis/odczyt realizuje `TransactionPersistence` (CSV adapter)
+
+## Zmiany
+- Dodano `TransactionRepository` + `InMemoryTransactionRepository`
+- Dodano `ExpenseTrackerService` i przeniesiono do niego logikę aplikacyjną
+- Dodano `TransactionPersistence` oraz `CsvTransactionPersistence`
+- UI (`ExpenseTrackerApp`) nie wykonuje już logiki save/load bezpośrednio — deleguje do serwisu
+
+## Testy
+- Dodano testy serwisu + stub persistence (bez I/O)
+- Manual tests:
+    - `docs/manual-tests/manual-tests-etap-2.1.md`
+    - `docs/manual-tests/manual-tests-etap-2.1.csv`
+
+---
+
 # ▶️ Jak uruchomić aplikację
 
 ```bash
