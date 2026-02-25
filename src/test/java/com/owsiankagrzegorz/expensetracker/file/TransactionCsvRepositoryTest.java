@@ -2,6 +2,7 @@ package com.owsiankagrzegorz.expensetracker.file;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
+import com.owsiankagrzegorz.expensetracker.persistence.CsvTransactionPersistence;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -21,7 +22,7 @@ class TransactionCsvRepositoryTest {
     @Test
     void shouldSaveTransactionsToCsvFile() throws IOException {
         // given
-        TransactionCsvRepository repo = new TransactionCsvRepository();
+        CsvTransactionPersistence repo = new CsvTransactionPersistence();
         Path filePath = tempDir.resolve("transactions.csv");
 
         List<Transaction> transactions = List.of(
@@ -49,7 +50,7 @@ class TransactionCsvRepositoryTest {
     @Test
     void shouldLoadTransactionsFromCsvFile() throws IOException {
         // given
-        TransactionCsvRepository repo = new TransactionCsvRepository();
+        CsvTransactionPersistence repo = new CsvTransactionPersistence();
         Path filePath = tempDir.resolve("transactions.csv");
 
         List<String> lines = List.of(

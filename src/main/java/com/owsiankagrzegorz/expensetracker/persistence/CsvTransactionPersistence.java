@@ -1,4 +1,4 @@
-package com.owsiankagrzegorz.expensetracker.file;
+package com.owsiankagrzegorz.expensetracker.persistence;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
@@ -8,10 +8,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.List;
 
-public class TransactionCsvRepository {
+public class CsvTransactionPersistence implements TransactionPersistence {
 
     public void save(Path path, List<Transaction> transactions) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {

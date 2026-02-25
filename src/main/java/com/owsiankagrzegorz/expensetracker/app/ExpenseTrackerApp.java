@@ -2,6 +2,7 @@ package com.owsiankagrzegorz.expensetracker.app;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
+import com.owsiankagrzegorz.expensetracker.persistence.CsvTransactionPersistence;
 import com.owsiankagrzegorz.expensetracker.repository.InMemoryTransactionRepository;
 import com.owsiankagrzegorz.expensetracker.service.ExpenseTrackerService;
 
@@ -177,7 +178,7 @@ public class ExpenseTrackerApp {
     }
 
     private static void handleSaveToCsv(ExpenseTrackerService service) {
-        var repo = new com.owsiankagrzegorz.expensetracker.file.TransactionCsvRepository();
+        var repo = new CsvTransactionPersistence();
         java.nio.file.Path path = java.nio.file.Path.of("data", "transactions.csv");
 
         try {
@@ -190,7 +191,7 @@ public class ExpenseTrackerApp {
     }
 
     private static void handleLoadFromCsv(ExpenseTrackerService service) {
-        var repo = new com.owsiankagrzegorz.expensetracker.file.TransactionCsvRepository();
+        var repo = new CsvTransactionPersistence();
         java.nio.file.Path path = java.nio.file.Path.of("data", "transactions.csv");
 
         try {
