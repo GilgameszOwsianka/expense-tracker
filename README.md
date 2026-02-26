@@ -168,9 +168,38 @@ Wprowadzenie podstawowej architektury (Ports & Adapters):
 ## Testy
 - Dodano testy serwisu + stub persistence (bez I/O)
 - Manual tests:
-    - `docs/manual-tests/manual-tests-etap-2.1.md`
-    - `docs/manual-tests/manual-tests-etap-2.1.csv`
+- Markdown: [`docs/manual-tests/manual-tests-etap-2.1.md`](docs/manual-tests/manual-tests-etap-2.1.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-2.1.csv`](docs/manual-tests/manual-tests-etap-2.1.csv)
 
+---
+
+# Etap 2.2 – Stream API: zapytania i raporty
+
+## Cel
+Dodanie warstwy zapytań i raportów z użyciem Stream API:
+- filtrowanie / sortowanie / limitowanie wyników (QueryService)
+- podsumowania i agregacje (ReportService)
+
+## Architektura
+- `TransactionQueryService` operuje na `TransactionRepository` i realizuje pipeline Stream API
+- `TransactionReportService` operuje na `TransactionRepository` i generuje DTO raportów
+- UI zbiera parametry i deleguje logikę do serwisów
+
+## Funkcje
+- Query / Filter:
+  - filtry: typ, zakres dat, kategoria, min/max kwota
+  - sort: date/amount/category/type (ASC/DESC)
+  - limit wyników
+- Reports:
+  - monthly summary
+  - period summary
+  - category breakdown (opcjonalny typ: WYDATEK/PRZYCHOD/all)
+
+## Testy
+- Unit tests: QueryService i ReportService
+- Manual tests:
+- Markdown: [`docs/manual-tests/manual-tests-etap-2.2.md`](docs/manual-tests/manual-tests-etap-2.2.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-2.2.csv`](docs/manual-tests/manual-tests-etap-2.2.csv)
 ---
 
 # ▶️ Jak uruchomić aplikację

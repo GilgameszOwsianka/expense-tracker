@@ -5,22 +5,27 @@ import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 import com.owsiankagrzegorz.expensetracker.persistence.CsvTransactionPersistence;
 import com.owsiankagrzegorz.expensetracker.repository.InMemoryTransactionRepository;
 import com.owsiankagrzegorz.expensetracker.service.ExpenseTrackerService;
+import com.owsiankagrzegorz.expensetracker.service.query.*;
+import com.owsiankagrzegorz.expensetracker.service.report.TransactionReportService;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Scanner;
 
 public class ExpenseTrackerApp {
 
     public static void main(String[] args) {
-        ExpenseTrackerService service = new ExpenseTrackerService(
-                new InMemoryTransactionRepository(),
-                new CsvTransactionPersistence()
-        );
+        var repository = new InMemoryTransactionRepository();
+        var persistence = new CsvTransactionPersistence();
+
+        var service = new ExpenseTrackerService(repository, persistence);
+        var queryService = new TransactionQueryService(repository);
+        var reportService = new TransactionReportService(repository);
 
         // TEMP seed data (for manual testing) - we'll clean this up in a later commit
-        service.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
-        service.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK));
-        service.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.now(), TransactionType.PRZYCHOD));
+        service.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
+        service.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
+        service.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.of(2026, 1, 1), TransactionType.PRZYCHOD));
 
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
@@ -36,6 +41,8 @@ public class ExpenseTrackerApp {
                 case 4 -> handleFilter(service, scanner);
                 case 5 -> handleSaveToCsv(service);
                 case 6 -> handleLoadFromCsv(service);
+                case 7 -> handleQuery(queryService, scanner);
+                case 8 -> handleReports(reportService, scanner);
                 case 0 -> {
                     System.out.println("Bye!");
                     running = false;
@@ -73,6 +80,8 @@ public class ExpenseTrackerApp {
         System.out.println("4) Filter transactions");
         System.out.println("5) Save transactions to CSV");
         System.out.println("6) Load transactions from CSV");
+        System.out.println("7) Query / Filter transactions");
+        System.out.println("8) Reports");
         System.out.println("0) Exit");
         System.out.print("Choose option: ");
     }
@@ -202,6 +211,104 @@ public class ExpenseTrackerApp {
             System.out.println("File not found: " + path.toAbsolutePath());
         } catch (java.io.IOException e) {
             System.out.println("Error while loading file: " + e.getMessage());
+        }
+    }
+
+    private static void handleQuery(TransactionQueryService queryService, Scanner scanner) {
+        System.out.println("\n--- Query / Filter ---");
+
+        TransactionQuery.Builder builder = TransactionQuery.builder();
+
+        System.out.print("Filter by type? (WYDATEK/PRZYCHOD or empty): ");
+        String typeInput = scanner.nextLine().trim();
+        if (!typeInput.isEmpty()) {
+            builder.type(TransactionType.fromString(typeInput));
+        }
+
+        System.out.print("Date from (yyyy-MM-dd or empty): ");
+        String fromInput = scanner.nextLine().trim();
+        if (!fromInput.isEmpty()) {
+            builder.dateFrom(LocalDate.parse(fromInput));
+        }
+
+        System.out.print("Date to (yyyy-MM-dd or empty): ");
+        String toInput = scanner.nextLine().trim();
+        if (!toInput.isEmpty()) {
+            builder.dateTo(LocalDate.parse(toInput));
+        }
+
+        System.out.print("Sort by (DATE/AMOUNT or empty): ");
+        String sortInput = scanner.nextLine().trim();
+        if (!sortInput.isEmpty()) {
+            SortField field = SortField.valueOf(sortInput.toUpperCase());
+            builder.sort(SortSpec.of(field, SortDirection.ASC));
+        }
+
+        TransactionQuery query = builder.build();
+
+        var results = queryService.find(query);
+
+        if (results.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
+
+        results.forEach(System.out::println);
+    }
+
+    private static void handleReports(TransactionReportService reportService, Scanner scanner) {
+        System.out.println("\n--- Reports ---");
+        System.out.println("1) Monthly summary");
+        System.out.println("2) Period summary");
+        System.out.println("3) Category breakdown (optional type)");
+
+        System.out.print("Choose option: ");
+        String option = scanner.nextLine().trim();
+
+        switch (option) {
+            case "1" -> {
+                System.out.print("Enter month (yyyy-MM): ");
+                YearMonth month = YearMonth.parse(scanner.nextLine().trim());
+                var summary = reportService.reportMonthly(month);
+
+                System.out.println("Month: " + summary.getMonth());
+                System.out.println("Income: " + summary.getIncomeTotal());
+                System.out.println("Expense: " + summary.getExpenseTotal());
+                System.out.println("Balance: " + summary.getBalance());
+            }
+            case "2" -> {
+                System.out.print("From (yyyy-MM-dd): ");
+                LocalDate from = LocalDate.parse(scanner.nextLine().trim());
+                System.out.print("To (yyyy-MM-dd): ");
+                LocalDate to = LocalDate.parse(scanner.nextLine().trim());
+
+                var summary = reportService.reportPeriod(from, to);
+
+                System.out.println("Income: " + summary.getIncomeTotal());
+                System.out.println("Expense: " + summary.getExpenseTotal());
+                System.out.println("Balance: " + summary.getBalance());
+            }
+            case "3" -> {
+                System.out.print("From (yyyy-MM-dd): ");
+                LocalDate from = LocalDate.parse(scanner.nextLine().trim());
+                System.out.print("To (yyyy-MM-dd): ");
+                LocalDate to = LocalDate.parse(scanner.nextLine().trim());
+
+                System.out.print("Type (WYDATEK/PRZYCHOD or empty for all): ");
+                String typeInput = scanner.nextLine().trim();
+
+                TransactionType type = null;
+                if (!typeInput.isEmpty()) {
+                    type = TransactionType.fromString(typeInput);
+                }
+
+                var breakdown = reportService.reportByCategory(from, to, type);
+
+                breakdown.getTotalsByCategory()
+                        .forEach((category, total) ->
+                                System.out.println(category + " -> " + total));
+            }
+            default -> System.out.println("Unknown option.");
         }
     }
 }
