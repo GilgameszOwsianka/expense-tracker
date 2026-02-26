@@ -1,0 +1,7 @@
+TestCaseID,Feature,Scenario,Input,ExpectedResult,ActualResult,Status
+TC-2.2-01,Query,Filter by type,"Query -> type=WYDATEK",Only WYDATEK transactions displayed,OK,Passed
+TC-2.2-02,Query,Date range inclusive,"Query -> dateFrom/dateTo",Only transactions within inclusive range displayed,OK,Passed
+TC-2.2-03,Query,Sort + limit,"Query -> sort=AMOUNT ASC, limit=2",Sorted results limited to 2,OK,Passed
+TC-2.2-04,Report,Monthly summary,"Reports -> month=yyyy-MM",Correct totals and balance for month,OK,Passed
+TC-2.2-05,Report,Period summary,"Reports -> from/to",Correct totals and balance for period,OK,Passed
+TC-2.2-06,Report,Category breakdown (all/types),"Reports -> from/to, type empty/WYDATEK/PRZYCHOD",Correct grouping + sorted desc,OK,Passed
