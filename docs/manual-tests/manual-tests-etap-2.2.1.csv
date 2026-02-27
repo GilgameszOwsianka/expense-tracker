@@ -1,0 +1,7 @@
+TestCaseID,Feature,Scenario,Input,ExpectedResult,ActualResult,Status
+TC-2.2.1-01,Input Validation,Invalid dates in Query,"abc / 2026/01/01 / 2026-99-99",No crash + clear message + retry,OK,Passed
+TC-2.2.1-02,Input Validation,Invalid month in Monthly Report,"abc / 2026/01 / 2026-13",No crash + clear message + retry,OK,Passed
+TC-2.2.1-03,Query UX,Early validation of amount range,"Min=200 Max=100",Immediate error + re-prompt for Min/Max,OK,Passed
+TC-2.2.1-04,Query UX,Sort field/direction validation,"Sort=DATA, Dir=DOWN",No crash + allowed options + retry,OK,Passed
+TC-2.2.1-05,Query UX,Limit validation,"Limit=abc, -1, 2",No crash + retry + valid limit applied,OK,Passed
+TC-2.2.1-06,Reports UX,Formatted report output,"Run all reports",Aligned columns + separators + 2 decimals,OK,Passed
