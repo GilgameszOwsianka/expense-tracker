@@ -218,30 +218,76 @@ public class ExpenseTrackerApp {
 
         TransactionQuery.Builder builder = TransactionQuery.builder();
 
-        System.out.print("Filter by type? (WYDATEK/PRZYCHOD or empty): ");
-        String typeInput = scanner.nextLine().trim();
-        if (!typeInput.isEmpty()) {
-            builder.type(TransactionType.fromString(typeInput));
+        // 1) Type (optional, validated)
+        TransactionType type = readOptionalTransactionType(scanner, "Filter by type (WYDATEK/PRZYCHOD or empty): ");
+        if (type != null) {
+            builder.type(type);
         }
 
-        LocalDate fromInput = readOptionalDate(scanner, "Date from (yyyy-MM-dd or empty): ");
-        if (fromInput != null) {
-            builder.dateFrom(fromInput);
+        // 2) Date range (optional, validated + early feedback)
+        LocalDate dateFrom;
+        LocalDate dateTo;
+        while (true) {
+            dateFrom = readOptionalDate(scanner, "Date from (yyyy-MM-dd or empty): ");
+            dateTo = readOptionalDate(scanner, "Date to (yyyy-MM-dd or empty): ");
+
+            if (dateFrom != null && dateTo != null && dateFrom.isAfter(dateTo)) {
+                System.out.println("Invalid range: dateFrom must be <= dateTo. Try again.");
+                continue;
+            }
+            break;
         }
 
-        LocalDate toInput = readOptionalDate(scanner, "Date to (yyyy-MM-dd or empty): ");
-        if (toInput != null) {
-            builder.dateTo(toInput);
+        if (dateFrom != null) {
+            builder.dateFrom(dateFrom);
+        }
+        if (dateTo != null) {
+            builder.dateTo(dateTo);
         }
 
-        System.out.print("Sort by (DATE/AMOUNT or empty): ");
-        String sortInput = scanner.nextLine().trim();
-        if (!sortInput.isEmpty()) {
-            SortField field = SortField.valueOf(sortInput.toUpperCase());
-            builder.sort(SortSpec.of(field, SortDirection.ASC));
+        // 3) Category (optional)
+        System.out.print("Category (or empty): ");
+        String category = scanner.nextLine().trim();
+        if (!category.isEmpty()) {
+            builder.category(category);
         }
 
-        TransactionQuery query = builder.build();
+        // 4) Amount range (optional, validated + early feedback)
+        Double[] range = readOptionalAmountRange(scanner);
+        Double minAmount = range[0];
+        Double maxAmount = range[1];
+
+        if (minAmount != null) {
+            builder.minAmount(minAmount);
+        }
+        if (maxAmount != null) {
+            builder.maxAmount(maxAmount);
+        }
+
+        // 5) Sorting (optional, validated)
+        SortField sortField = readOptionalSortField(scanner, "Sort field (DATE/AMOUNT/CATEGORY/TYPE or empty): ");
+        if (sortField != null) {
+            SortDirection direction = readOptionalSortDirection(scanner, "Sort direction (ASC/DESC or empty=ASC): ");
+            if (direction == null) {
+                direction = SortDirection.ASC;
+            }
+            builder.sort(SortSpec.of(sortField, direction));
+        }
+
+        // 6) Limit (optional, validated)
+        Integer limit = readOptionalInt(scanner, "Limit results (or empty): ");
+        if (limit != null) {
+            builder.limit(limit);
+        }
+
+        // 7) Build query (last-line validation, no crash)
+        TransactionQuery query;
+        try {
+            query = builder.build();
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid query: " + e.getMessage());
+            return;
+        }
 
         var results = queryService.find(query);
 
@@ -250,6 +296,7 @@ public class ExpenseTrackerApp {
             return;
         }
 
+        System.out.println("\nResults (" + results.size() + "):");
         results.forEach(System.out::println);
     }
 
@@ -358,6 +405,105 @@ public class ExpenseTrackerApp {
             } catch (Exception e) {
                 System.out.println("Invalid month format. Expected yyyy-MM.");
             }
+        }
+    }
+
+    private static Double readOptionalDouble(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return Double.parseDouble(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Try again.");
+            }
+        }
+    }
+
+    private static Integer readOptionalInt(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Try again.");
+            }
+        }
+    }
+
+    private static SortField readOptionalSortField(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return SortField.valueOf(input.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid sort field. Allowed: DATE, AMOUNT, CATEGORY, TYPE.");
+            }
+        }
+    }
+
+    private static SortDirection readOptionalSortDirection(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return SortDirection.valueOf(input.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid sort direction. Allowed: ASC, DESC.");
+            }
+        }
+    }
+
+    private static TransactionType readOptionalTransactionType(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return TransactionType.fromString(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid type. Allowed: WYDATEK, PRZYCHOD.");
+            }
+        }
+    }
+
+    private static Double[] readOptionalAmountRange(Scanner scanner) {
+        while (true) {
+            Double min = readOptionalDouble(scanner, "Min amount (or empty): ");
+            Double max = readOptionalDouble(scanner, "Max amount (or empty): ");
+
+            if (min != null && max != null && min > max) {
+                System.out.println("Invalid range: minAmount must be <= maxAmount. Try again.");
+                continue;
+            }
+
+            return new Double[]{min, max};
         }
     }
 }
