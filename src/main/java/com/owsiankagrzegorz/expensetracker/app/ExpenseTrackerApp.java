@@ -85,6 +85,10 @@ public class ExpenseTrackerApp {
         System.out.print("Choose option: ");
     }
 
+    private static void printSeparator() {
+        System.out.println("--------------------------------------------------");
+    }
+
     private static int readMenuChoice(Scanner scanner) {
         while (true) {
             String input = scanner.nextLine().trim();
@@ -319,10 +323,14 @@ public class ExpenseTrackerApp {
                 }
                 var summary = reportService.reportMonthly(month);
 
-                System.out.println("Month: " + summary.getMonth());
-                System.out.println("Income: " + summary.getIncomeTotal());
-                System.out.println("Expense: " + summary.getExpenseTotal());
-                System.out.println("Balance: " + summary.getBalance());
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Month:", summary.getMonth());
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Income:", formatAmount(summary.getIncomeTotal()));
+                System.out.printf("%-20s %10s%n", "Expense:", formatAmount(summary.getExpenseTotal()));
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Balance:", formatAmount(summary.getBalance()));
+                printSeparator();
             }
             case "2" -> {
                 LocalDate from = readOptionalDate(scanner, "From (yyyy-MM-dd): ");
@@ -339,9 +347,12 @@ public class ExpenseTrackerApp {
 
                 var summary = reportService.reportPeriod(from, to);
 
-                System.out.println("Income: " + summary.getIncomeTotal());
-                System.out.println("Expense: " + summary.getExpenseTotal());
-                System.out.println("Balance: " + summary.getBalance());
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Income:", formatAmount(summary.getIncomeTotal()));
+                System.out.printf("%-20s %10s%n", "Expense:", formatAmount(summary.getExpenseTotal()));
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Balance:", formatAmount(summary.getBalance()));
+                printSeparator();
             }
             case "3" -> {
                 LocalDate from = readOptionalDate(scanner, "From (yyyy-MM-dd): ");
@@ -356,19 +367,35 @@ public class ExpenseTrackerApp {
                     return;
                 }
 
-                System.out.print("Type (WYDATEK/PRZYCHOD or empty for all): ");
-                String typeInput = scanner.nextLine().trim();
-
-                TransactionType type = null;
-                if (!typeInput.isEmpty()) {
-                    type = TransactionType.fromString(typeInput);
+                // Walidacja zakresu dat
+                if (from.isAfter(to)) {
+                    System.out.println("Invalid range: From date must be before or equal To date.");
+                    return;
                 }
+
+                // Bezpieczne wczytanie typu (bez crasha)
+                TransactionType type = readOptionalTransactionType(
+                        scanner,
+                        "Type (WYDATEK/PRZYCHOD or empty for all): "
+                );
 
                 var breakdown = reportService.reportByCategory(from, to, type);
 
+                if (breakdown.getTotalsByCategory().isEmpty()) {
+                    System.out.println("No data for selected criteria.");
+                    return;
+                }
+
+                printSeparator();
+                System.out.printf("%-25s %10s%n", "Category", "Total");
+                printSeparator();
+
                 breakdown.getTotalsByCategory()
                         .forEach((category, total) ->
-                                System.out.println(category + " -> " + total));
+                                System.out.printf("%-25s %10s%n", category, formatAmount(total))
+                        );
+
+                printSeparator();
             }
             default -> System.out.println("Unknown option.");
         }
@@ -505,5 +532,9 @@ public class ExpenseTrackerApp {
 
             return new Double[]{min, max};
         }
+    }
+
+    private static String formatAmount(double amount) {
+        return String.format("%10.2f", amount);
     }
 }
