@@ -7,7 +7,6 @@ import com.owsiankagrzegorz.expensetracker.repository.InMemoryTransactionReposit
 import com.owsiankagrzegorz.expensetracker.service.ExpenseTrackerService;
 import com.owsiankagrzegorz.expensetracker.service.query.*;
 import com.owsiankagrzegorz.expensetracker.service.report.TransactionReportService;
-
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Scanner;
@@ -84,6 +83,10 @@ public class ExpenseTrackerApp {
         System.out.println("8) Reports");
         System.out.println("0) Exit");
         System.out.print("Choose option: ");
+    }
+
+    private static void printSeparator() {
+        System.out.println("--------------------------------------------------");
     }
 
     private static int readMenuChoice(Scanner scanner) {
@@ -219,32 +222,76 @@ public class ExpenseTrackerApp {
 
         TransactionQuery.Builder builder = TransactionQuery.builder();
 
-        System.out.print("Filter by type? (WYDATEK/PRZYCHOD or empty): ");
-        String typeInput = scanner.nextLine().trim();
-        if (!typeInput.isEmpty()) {
-            builder.type(TransactionType.fromString(typeInput));
+        // 1) Type (optional, validated)
+        TransactionType type = readOptionalTransactionType(scanner, "Filter by type (WYDATEK/PRZYCHOD or empty): ");
+        if (type != null) {
+            builder.type(type);
         }
 
-        System.out.print("Date from (yyyy-MM-dd or empty): ");
-        String fromInput = scanner.nextLine().trim();
-        if (!fromInput.isEmpty()) {
-            builder.dateFrom(LocalDate.parse(fromInput));
+        // 2) Date range (optional, validated + early feedback)
+        LocalDate dateFrom;
+        LocalDate dateTo;
+        while (true) {
+            dateFrom = readOptionalDate(scanner, "Date from (yyyy-MM-dd or empty): ");
+            dateTo = readOptionalDate(scanner, "Date to (yyyy-MM-dd or empty): ");
+
+            if (dateFrom != null && dateTo != null && dateFrom.isAfter(dateTo)) {
+                System.out.println("Invalid range: dateFrom must be <= dateTo. Try again.");
+                continue;
+            }
+            break;
         }
 
-        System.out.print("Date to (yyyy-MM-dd or empty): ");
-        String toInput = scanner.nextLine().trim();
-        if (!toInput.isEmpty()) {
-            builder.dateTo(LocalDate.parse(toInput));
+        if (dateFrom != null) {
+            builder.dateFrom(dateFrom);
+        }
+        if (dateTo != null) {
+            builder.dateTo(dateTo);
         }
 
-        System.out.print("Sort by (DATE/AMOUNT or empty): ");
-        String sortInput = scanner.nextLine().trim();
-        if (!sortInput.isEmpty()) {
-            SortField field = SortField.valueOf(sortInput.toUpperCase());
-            builder.sort(SortSpec.of(field, SortDirection.ASC));
+        // 3) Category (optional)
+        System.out.print("Category (or empty): ");
+        String category = scanner.nextLine().trim();
+        if (!category.isEmpty()) {
+            builder.category(category);
         }
 
-        TransactionQuery query = builder.build();
+        // 4) Amount range (optional, validated + early feedback)
+        Double[] range = readOptionalAmountRange(scanner);
+        Double minAmount = range[0];
+        Double maxAmount = range[1];
+
+        if (minAmount != null) {
+            builder.minAmount(minAmount);
+        }
+        if (maxAmount != null) {
+            builder.maxAmount(maxAmount);
+        }
+
+        // 5) Sorting (optional, validated)
+        SortField sortField = readOptionalSortField(scanner, "Sort field (DATE/AMOUNT/CATEGORY/TYPE or empty): ");
+        if (sortField != null) {
+            SortDirection direction = readOptionalSortDirection(scanner, "Sort direction (ASC/DESC or empty=ASC): ");
+            if (direction == null) {
+                direction = SortDirection.ASC;
+            }
+            builder.sort(SortSpec.of(sortField, direction));
+        }
+
+        // 6) Limit (optional, validated)
+        Integer limit = readOptionalInt(scanner, "Limit results (or empty): ");
+        if (limit != null) {
+            builder.limit(limit);
+        }
+
+        // 7) Build query (last-line validation, no crash)
+        TransactionQuery query;
+        try {
+            query = builder.build();
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid query: " + e.getMessage());
+            return;
+        }
 
         var results = queryService.find(query);
 
@@ -253,6 +300,7 @@ public class ExpenseTrackerApp {
             return;
         }
 
+        System.out.println("\nResults (" + results.size() + "):");
         results.forEach(System.out::println);
     }
 
@@ -267,48 +315,226 @@ public class ExpenseTrackerApp {
 
         switch (option) {
             case "1" -> {
-                System.out.print("Enter month (yyyy-MM): ");
-                YearMonth month = YearMonth.parse(scanner.nextLine().trim());
+
+                YearMonth month = readOptionalYearMonth(scanner, "Enter month (yyyy-MM): ");
+                if (month == null) {
+                    System.out.println("Month is required");
+                    return;
+                }
                 var summary = reportService.reportMonthly(month);
 
-                System.out.println("Month: " + summary.getMonth());
-                System.out.println("Income: " + summary.getIncomeTotal());
-                System.out.println("Expense: " + summary.getExpenseTotal());
-                System.out.println("Balance: " + summary.getBalance());
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Month:", summary.getMonth());
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Income:", formatAmount(summary.getIncomeTotal()));
+                System.out.printf("%-20s %10s%n", "Expense:", formatAmount(summary.getExpenseTotal()));
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Balance:", formatAmount(summary.getBalance()));
+                printSeparator();
             }
             case "2" -> {
-                System.out.print("From (yyyy-MM-dd): ");
-                LocalDate from = LocalDate.parse(scanner.nextLine().trim());
-                System.out.print("To (yyyy-MM-dd): ");
-                LocalDate to = LocalDate.parse(scanner.nextLine().trim());
+                LocalDate from = readOptionalDate(scanner, "From (yyyy-MM-dd): ");
+                if (from == null) {
+                    System.out.println("From date is required.");
+                    return;
+                }
+
+                LocalDate to = readOptionalDate(scanner, "To (yyyy-MM-dd): ");
+                if (to == null) {
+                    System.out.println("To date is required.");
+                    return;
+                }
 
                 var summary = reportService.reportPeriod(from, to);
 
-                System.out.println("Income: " + summary.getIncomeTotal());
-                System.out.println("Expense: " + summary.getExpenseTotal());
-                System.out.println("Balance: " + summary.getBalance());
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Income:", formatAmount(summary.getIncomeTotal()));
+                System.out.printf("%-20s %10s%n", "Expense:", formatAmount(summary.getExpenseTotal()));
+                printSeparator();
+                System.out.printf("%-20s %10s%n", "Balance:", formatAmount(summary.getBalance()));
+                printSeparator();
             }
             case "3" -> {
-                System.out.print("From (yyyy-MM-dd): ");
-                LocalDate from = LocalDate.parse(scanner.nextLine().trim());
-                System.out.print("To (yyyy-MM-dd): ");
-                LocalDate to = LocalDate.parse(scanner.nextLine().trim());
-
-                System.out.print("Type (WYDATEK/PRZYCHOD or empty for all): ");
-                String typeInput = scanner.nextLine().trim();
-
-                TransactionType type = null;
-                if (!typeInput.isEmpty()) {
-                    type = TransactionType.fromString(typeInput);
+                LocalDate from = readOptionalDate(scanner, "From (yyyy-MM-dd): ");
+                if (from == null) {
+                    System.out.println("From date is required.");
+                    return;
                 }
+
+                LocalDate to = readOptionalDate(scanner, "To (yyyy-MM-dd): ");
+                if (to == null) {
+                    System.out.println("To date is required.");
+                    return;
+                }
+
+                // Walidacja zakresu dat
+                if (from.isAfter(to)) {
+                    System.out.println("Invalid range: From date must be before or equal To date.");
+                    return;
+                }
+
+                // Bezpieczne wczytanie typu (bez crasha)
+                TransactionType type = readOptionalTransactionType(
+                        scanner,
+                        "Type (WYDATEK/PRZYCHOD or empty for all): "
+                );
 
                 var breakdown = reportService.reportByCategory(from, to, type);
 
+                if (breakdown.getTotalsByCategory().isEmpty()) {
+                    System.out.println("No data for selected criteria.");
+                    return;
+                }
+
+                printSeparator();
+                System.out.printf("%-25s %10s%n", "Category", "Total");
+                printSeparator();
+
                 breakdown.getTotalsByCategory()
                         .forEach((category, total) ->
-                                System.out.println(category + " -> " + total));
+                                System.out.printf("%-25s %10s%n", category, formatAmount(total))
+                        );
+
+                printSeparator();
             }
             default -> System.out.println("Unknown option.");
         }
+    }
+
+    private static LocalDate readOptionalDate(Scanner scanner, String prompt) {
+        while(true) {
+            System.out.println(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return LocalDate.parse(input);
+            } catch (Exception e) {
+                System.out.println("Invalid date format. Expected yyyy-MM-dd.");
+            }
+        }
+    }
+
+    private static YearMonth readOptionalYearMonth (Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return YearMonth.parse(input);
+            } catch (Exception e) {
+                System.out.println("Invalid month format. Expected yyyy-MM.");
+            }
+        }
+    }
+
+    private static Double readOptionalDouble(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return Double.parseDouble(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Try again.");
+            }
+        }
+    }
+
+    private static Integer readOptionalInt(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Try again.");
+            }
+        }
+    }
+
+    private static SortField readOptionalSortField(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return SortField.valueOf(input.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid sort field. Allowed: DATE, AMOUNT, CATEGORY, TYPE.");
+            }
+        }
+    }
+
+    private static SortDirection readOptionalSortDirection(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return SortDirection.valueOf(input.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid sort direction. Allowed: ASC, DESC.");
+            }
+        }
+    }
+
+    private static TransactionType readOptionalTransactionType(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return TransactionType.fromString(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid type. Allowed: WYDATEK, PRZYCHOD.");
+            }
+        }
+    }
+
+    private static Double[] readOptionalAmountRange(Scanner scanner) {
+        while (true) {
+            Double min = readOptionalDouble(scanner, "Min amount (or empty): ");
+            Double max = readOptionalDouble(scanner, "Max amount (or empty): ");
+
+            if (min != null && max != null && min > max) {
+                System.out.println("Invalid range: minAmount must be <= maxAmount. Try again.");
+                continue;
+            }
+
+            return new Double[]{min, max};
+        }
+    }
+
+    private static String formatAmount(double amount) {
+        return String.format("%10.2f", amount);
     }
 }
