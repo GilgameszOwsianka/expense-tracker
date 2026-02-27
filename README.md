@@ -200,6 +200,71 @@ Dodanie warstwy zapytań i raportów z użyciem Stream API:
 - Manual tests:
 - Markdown: [`docs/manual-tests/manual-tests-etap-2.2.md`](docs/manual-tests/manual-tests-etap-2.2.md)
 - CSV: [`docs/manual-tests/manual-tests-etap-2.2.csv`](docs/manual-tests/manual-tests-etap-2.2.csv)
+
+---
+
+# Etap 2.2.1 – Polishing / UX Hardening
+
+## Cel
+Ulepszenie stabilności i UX w konsoli bez zmian w logice biznesowej:
+- walidacja inputu (brak crashy)
+- rozbudowane opcje Query
+- czytelniejsze raporty (formatowanie)
+
+## Zmiany
+- Bezpieczne parsowanie dat/miesięcy (retry + komunikaty)
+- Query: kategoria, min/max kwota, sort direction, limit + walidacja
+- Reports: wyrównane kolumny, separatory, spójny format kwot
+
+## Testy
+- Manual tests:
+- Markdown: [`docs/manual-tests/manual-tests-etap-2.2.1.md`](docs/manual-tests/manual-tests-etap-2.2.1.md)
+- CSV: [`docs/manual-tests/manual-tests-etap-2.2.1.csv`](docs/manual-tests/manual-tests-etap-2.2.1.csv)
+
+---
+# Workflow developerski
+
+Projekt realizowany jest według uproszczonego, ale profesjonalnego procesu pracy dostosowanego do projektu jednoosobowego.
+
+## Statusy w Project Board
+
+Backlog → In Progress → Code Review → Testing/QA → Done
+
+### Backlog
+- Issue posiada opis, zakres oraz kryteria akceptacji.
+- Jest przypisane do konkretnego Milestone.
+- Jest gotowe do rozpoczęcia prac.
+
+### In Progress
+- Utworzony jest branch (najczęściej 1 branch na Milestone).
+- Trwa implementacja.
+- Powstają commity powiązane z numerem issue.
+
+### Code Review
+- Implementacja jest ukończona.
+- Kod został sprawdzony (self-review).
+- Issue oczekuje na otwarcie lub finalizację PR dla danego Milestone.
+
+### Testing / QA
+- PR dla Milestone jest otwarty.
+- Wykonywana jest weryfikacja manualna (checklista testów).
+- Uruchamiane są testy jednostkowe.
+- Sprawdzana jest integracja wszystkich zmian.
+
+### Done
+- PR został zmergowany do branch `main`.
+- Issue jest zamknięte.
+- Zmiany są dostępne w stabilnej wersji projektu.
+
+---
+
+## Zasady
+
+- Każde Issue przypisane jest do konkretnego Milestone.
+- Najczęściej stosowany jest jeden branch na Milestone.
+- Commity zawierają numer Issue w wiadomości commit.
+- Statusy na Boardzie nie są cofane (odzwierciedlają rzeczywisty etap prac).
+- Manual tests oraz aktualizacja README są częścią domknięcia Milestone.
 ---
 
 # ▶️ Jak uruchomić aplikację
