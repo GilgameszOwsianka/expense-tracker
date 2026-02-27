@@ -7,7 +7,6 @@ import com.owsiankagrzegorz.expensetracker.repository.InMemoryTransactionReposit
 import com.owsiankagrzegorz.expensetracker.service.ExpenseTrackerService;
 import com.owsiankagrzegorz.expensetracker.service.query.*;
 import com.owsiankagrzegorz.expensetracker.service.report.TransactionReportService;
-
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Scanner;
@@ -225,16 +224,14 @@ public class ExpenseTrackerApp {
             builder.type(TransactionType.fromString(typeInput));
         }
 
-        System.out.print("Date from (yyyy-MM-dd or empty): ");
-        String fromInput = scanner.nextLine().trim();
-        if (!fromInput.isEmpty()) {
-            builder.dateFrom(LocalDate.parse(fromInput));
+        LocalDate fromInput = readOptionalDate(scanner, "Date from (yyyy-MM-dd or empty): ");
+        if (fromInput != null) {
+            builder.dateFrom(fromInput);
         }
 
-        System.out.print("Date to (yyyy-MM-dd or empty): ");
-        String toInput = scanner.nextLine().trim();
-        if (!toInput.isEmpty()) {
-            builder.dateTo(LocalDate.parse(toInput));
+        LocalDate toInput = readOptionalDate(scanner, "Date to (yyyy-MM-dd or empty): ");
+        if (toInput != null) {
+            builder.dateTo(toInput);
         }
 
         System.out.print("Sort by (DATE/AMOUNT or empty): ");
@@ -267,8 +264,12 @@ public class ExpenseTrackerApp {
 
         switch (option) {
             case "1" -> {
-                System.out.print("Enter month (yyyy-MM): ");
-                YearMonth month = YearMonth.parse(scanner.nextLine().trim());
+
+                YearMonth month = readOptionalYearMonth(scanner, "Enter month (yyyy-MM): ");
+                if (month == null) {
+                    System.out.println("Month is required");
+                    return;
+                }
                 var summary = reportService.reportMonthly(month);
 
                 System.out.println("Month: " + summary.getMonth());
@@ -277,10 +278,17 @@ public class ExpenseTrackerApp {
                 System.out.println("Balance: " + summary.getBalance());
             }
             case "2" -> {
-                System.out.print("From (yyyy-MM-dd): ");
-                LocalDate from = LocalDate.parse(scanner.nextLine().trim());
-                System.out.print("To (yyyy-MM-dd): ");
-                LocalDate to = LocalDate.parse(scanner.nextLine().trim());
+                LocalDate from = readOptionalDate(scanner, "From (yyyy-MM-dd): ");
+                if (from == null) {
+                    System.out.println("From date is required.");
+                    return;
+                }
+
+                LocalDate to = readOptionalDate(scanner, "To (yyyy-MM-dd): ");
+                if (to == null) {
+                    System.out.println("To date is required.");
+                    return;
+                }
 
                 var summary = reportService.reportPeriod(from, to);
 
@@ -289,10 +297,17 @@ public class ExpenseTrackerApp {
                 System.out.println("Balance: " + summary.getBalance());
             }
             case "3" -> {
-                System.out.print("From (yyyy-MM-dd): ");
-                LocalDate from = LocalDate.parse(scanner.nextLine().trim());
-                System.out.print("To (yyyy-MM-dd): ");
-                LocalDate to = LocalDate.parse(scanner.nextLine().trim());
+                LocalDate from = readOptionalDate(scanner, "From (yyyy-MM-dd): ");
+                if (from == null) {
+                    System.out.println("From date is required.");
+                    return;
+                }
+
+                LocalDate to = readOptionalDate(scanner, "To (yyyy-MM-dd): ");
+                if (to == null) {
+                    System.out.println("To date is required.");
+                    return;
+                }
 
                 System.out.print("Type (WYDATEK/PRZYCHOD or empty for all): ");
                 String typeInput = scanner.nextLine().trim();
@@ -309,6 +324,40 @@ public class ExpenseTrackerApp {
                                 System.out.println(category + " -> " + total));
             }
             default -> System.out.println("Unknown option.");
+        }
+    }
+
+    private static LocalDate readOptionalDate(Scanner scanner, String prompt) {
+        while(true) {
+            System.out.println(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return LocalDate.parse(input);
+            } catch (Exception e) {
+                System.out.println("Invalid date format. Expected yyyy-MM-dd.");
+            }
+        }
+    }
+
+    private static YearMonth readOptionalYearMonth (Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return YearMonth.parse(input);
+            } catch (Exception e) {
+                System.out.println("Invalid month format. Expected yyyy-MM.");
+            }
         }
     }
 }
