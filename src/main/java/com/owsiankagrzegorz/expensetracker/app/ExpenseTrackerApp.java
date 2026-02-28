@@ -47,10 +47,10 @@ public class ExpenseTrackerApp {
                 case 7 -> handleQuery(queryService, scanner);
                 case 8 -> handleReports(reportService, scanner);
                 case 0 -> {
-                    System.out.println("Bye!");
+                    printer.info("Bye!");
                     running = false;
                 }
-                default -> System.out.println("Unknown option.\nTry again.");
+                default->printer.error("Unknown option.\nTry again.");
             }
         }
 
@@ -74,34 +74,8 @@ public class ExpenseTrackerApp {
         }
     }
 
-    private static void printMenu() {
-        System.out.println();
-        System.out.println("=== Expense Tracker ===");
-        System.out.println("1) List all transactions");
-        System.out.println("2) Add transaction");
-        System.out.println("3) Delete transaction by id");
-        System.out.println("4) Filter transactions");
-        System.out.println("5) Save transactions to CSV");
-        System.out.println("6) Load transactions from CSV");
-        System.out.println("7) Query / Filter transactions");
-        System.out.println("8) Reports");
-        System.out.println("0) Exit");
-        System.out.print("Choose option: ");
-    }
-
     private static void printSeparator() {
         System.out.println("--------------------------------------------------");
-    }
-
-    private static int readMenuChoice(Scanner scanner) {
-        while (true) {
-            String input = scanner.nextLine().trim();
-            try {
-                return Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.print("Invalid input.\nEnter a number: ");
-            }
-        }
     }
 
     private static void handleList(ExpenseTrackerService service) {

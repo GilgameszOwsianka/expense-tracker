@@ -83,4 +83,30 @@ public class InputReader implements AutoCloseable{
     public void close() {
         scanner.close();
     }
+
+    public Double readOptionalDouble(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) return null;
+            try {
+                return Double.parseDouble(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number.\nTry again.");
+            }
+        }
+    }
+
+    public Integer readOptionalInt(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) return null;
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number.\nTry again.");
+            }
+        }
+    }
 }

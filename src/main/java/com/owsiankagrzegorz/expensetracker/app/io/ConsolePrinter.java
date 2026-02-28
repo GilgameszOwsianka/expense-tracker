@@ -28,4 +28,12 @@ public class ConsolePrinter {
     public void error(String msg) {
         System.out.println(msg);
     }
+
+    public void prompt(String msg) {
+        System.out.print(msg);
+    }
+
+    public void blankLine() {
+        System.out.println();
+    }
 }
