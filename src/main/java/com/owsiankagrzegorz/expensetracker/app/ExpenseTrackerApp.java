@@ -42,17 +42,17 @@ public class ExpenseTrackerApp {
         registry.register(1, new ListTransactionsCommand(ctx));
         registry.register(2, new AddTransactionCommand(ctx));
         registry.register(3, new DeleteTransactionCommand(ctx));
+        registry.register(4, new FilterByTypeCommand(ctx));
         registry.register(0, exitCommand);
 
         while (!exitSignal.isExitRequested()) {
             printer.printMainMenu();
             int choice = input.readMenuChoice();
 
-            if (choice >= 0 && choice <= 3) {
+            if (choice >= 0 && choice <= 4) {
                 registry.get(choice).execute();
             } else {
                 switch (choice) {
-                    case 4 -> handleFilter(service, scanner);
                     case 5 -> handleSaveToCsv(service);
                     case 6 -> handleLoadFromCsv(service);
                     case 7 -> handleQuery(queryService, scanner);
