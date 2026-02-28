@@ -1,5 +1,6 @@
 package com.owsiankagrzegorz.expensetracker.app;
 
+import com.owsiankagrzegorz.expensetracker.app.io.InputReader;
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 import com.owsiankagrzegorz.expensetracker.persistence.CsvTransactionPersistence;
@@ -27,11 +28,12 @@ public class ExpenseTrackerApp {
         service.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.of(2026, 1, 1), TransactionType.PRZYCHOD));
 
         Scanner scanner = new Scanner(System.in);
+        InputReader input = new InputReader(scanner);
         boolean running = true;
 
         while (running) {
             printMenu();
-            int choice = readMenuChoice(scanner);
+            int choice = input.readMenuChoice();
 
             switch (choice) {
                 case 1 -> handleList(service);
@@ -50,7 +52,7 @@ public class ExpenseTrackerApp {
             }
         }
 
-        scanner.close();
+        input.close();
     }
 
     private static void handleFilter(ExpenseTrackerService service, Scanner scanner) {
