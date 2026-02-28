@@ -41,23 +41,23 @@ public class ExpenseTrackerApp {
         CommandRegistry registry = new CommandRegistry(unknownCommand);
         registry.register(1, new ListTransactionsCommand(ctx));
         registry.register(2, new AddTransactionCommand(ctx));
+        registry.register(3, new DeleteTransactionCommand(ctx));
         registry.register(0, exitCommand);
 
         while (!exitSignal.isExitRequested()) {
             printer.printMainMenu();
             int choice = input.readMenuChoice();
 
-            if (choice == 0 || choice == 1 || choice == 2) {
+            if (choice >= 0 && choice <= 3) {
                 registry.get(choice).execute();
             } else {
                 switch (choice) {
-                    case 3 -> handleDelete(service, scanner);
                     case 4 -> handleFilter(service, scanner);
                     case 5 -> handleSaveToCsv(service);
                     case 6 -> handleLoadFromCsv(service);
                     case 7 -> handleQuery(queryService, scanner);
                     case 8 -> handleReports(reportService, scanner);
-                    default -> registry.get(choice).execute(); // unknown
+                    default -> registry.get(choice).execute();
                 }
             }
         }
