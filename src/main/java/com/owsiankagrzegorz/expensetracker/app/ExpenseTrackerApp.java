@@ -1,9 +1,6 @@
 package com.owsiankagrzegorz.expensetracker.app;
 
-import com.owsiankagrzegorz.expensetracker.app.command.AppContext;
-import com.owsiankagrzegorz.expensetracker.app.command.ExitCommand;
-import com.owsiankagrzegorz.expensetracker.app.command.ExitSignal;
-import com.owsiankagrzegorz.expensetracker.app.command.UnknownOptionCommand;
+import com.owsiankagrzegorz.expensetracker.app.command.*;
 import com.owsiankagrzegorz.expensetracker.app.io.ConsolePrinter;
 import com.owsiankagrzegorz.expensetracker.app.io.InputReader;
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
@@ -35,29 +32,33 @@ public class ExpenseTrackerApp {
         Scanner scanner = new Scanner(System.in);
         InputReader input = new InputReader(scanner);
         ConsolePrinter printer = new ConsolePrinter();
+
         AppContext ctx = new AppContext(service, input, printer);
         ExitSignal exitSignal = new ExitSignal();
-
         var exitCommand = new ExitCommand(ctx, exitSignal);
         var unknownCommand = new UnknownOptionCommand(ctx);
+
+        CommandRegistry registry = new CommandRegistry(unknownCommand);
+        registry.register(1, new ListTransactionsCommand(ctx));
+        registry.register(0, exitCommand);
 
         while (!exitSignal.isExitRequested()) {
             printer.printMainMenu();
             int choice = input.readMenuChoice();
 
-            switch (choice) {
-                case 1 -> handleList(service);
-                case 2 -> handleAddTransaction(service, scanner);
-                case 3 -> handleDelete(service, scanner);
-                case 4 -> handleFilter(service, scanner);
-                case 5 -> handleSaveToCsv(service);
-                case 6 -> handleLoadFromCsv(service);
-                case 7 -> handleQuery(queryService, scanner);
-                case 8 -> handleReports(reportService, scanner);
-                case 0 -> {
-                    exitCommand.execute();
+            if (choice == 1 || choice == 0) {
+                registry.get(choice).execute();
+            } else {
+                switch (choice) {
+                    case 2 -> handleAddTransaction(service, scanner);
+                    case 3 -> handleDelete(service, scanner);
+                    case 4 -> handleFilter(service, scanner);
+                    case 5 -> handleSaveToCsv(service);
+                    case 6 -> handleLoadFromCsv(service);
+                    case 7 -> handleQuery(queryService, scanner);
+                    case 8 -> handleReports(reportService, scanner);
+                    default -> registry.get(choice).execute(); // unknown
                 }
-                default->unknownCommand.execute();
             }
         }
 
