@@ -1,5 +1,9 @@
 package com.owsiankagrzegorz.expensetracker.app;
 
+import com.owsiankagrzegorz.expensetracker.app.command.AppContext;
+import com.owsiankagrzegorz.expensetracker.app.command.ExitCommand;
+import com.owsiankagrzegorz.expensetracker.app.command.ExitSignal;
+import com.owsiankagrzegorz.expensetracker.app.command.UnknownOptionCommand;
 import com.owsiankagrzegorz.expensetracker.app.io.ConsolePrinter;
 import com.owsiankagrzegorz.expensetracker.app.io.InputReader;
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
@@ -16,9 +20,9 @@ import java.util.Scanner;
 public class ExpenseTrackerApp {
 
     public static void main(String[] args) {
+
         var repository = new InMemoryTransactionRepository();
         var persistence = new CsvTransactionPersistence();
-
         var service = new ExpenseTrackerService(repository, persistence);
         var queryService = new TransactionQueryService(repository);
         var reportService = new TransactionReportService(repository);
@@ -31,9 +35,13 @@ public class ExpenseTrackerApp {
         Scanner scanner = new Scanner(System.in);
         InputReader input = new InputReader(scanner);
         ConsolePrinter printer = new ConsolePrinter();
-        boolean running = true;
+        AppContext ctx = new AppContext(service, input, printer);
+        ExitSignal exitSignal = new ExitSignal();
 
-        while (running) {
+        var exitCommand = new ExitCommand(ctx, exitSignal);
+        var unknownCommand = new UnknownOptionCommand(ctx);
+
+        while (!exitSignal.isExitRequested()) {
             printer.printMainMenu();
             int choice = input.readMenuChoice();
 
@@ -47,10 +55,9 @@ public class ExpenseTrackerApp {
                 case 7 -> handleQuery(queryService, scanner);
                 case 8 -> handleReports(reportService, scanner);
                 case 0 -> {
-                    printer.info("Bye!");
-                    running = false;
+                    exitCommand.execute();
                 }
-                default->printer.error("Unknown option.\nTry again.");
+                default->unknownCommand.execute();
             }
         }
 
