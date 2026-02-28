@@ -1,5 +1,6 @@
 package com.owsiankagrzegorz.expensetracker.app;
 
+import com.owsiankagrzegorz.expensetracker.app.io.ConsolePrinter;
 import com.owsiankagrzegorz.expensetracker.app.io.InputReader;
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
@@ -29,10 +30,11 @@ public class ExpenseTrackerApp {
 
         Scanner scanner = new Scanner(System.in);
         InputReader input = new InputReader(scanner);
+        ConsolePrinter printer = new ConsolePrinter();
         boolean running = true;
 
         while (running) {
-            printMenu();
+            printer.printMainMenu();
             int choice = input.readMenuChoice();
 
             switch (choice) {
