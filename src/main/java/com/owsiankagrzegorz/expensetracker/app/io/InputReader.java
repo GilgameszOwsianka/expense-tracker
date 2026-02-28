@@ -1,7 +1,11 @@
 package com.owsiankagrzegorz.expensetracker.app.io;
 
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
+import com.owsiankagrzegorz.expensetracker.service.query.SortDirection;
+import com.owsiankagrzegorz.expensetracker.service.query.SortField;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Scanner;
 
 public class InputReader implements AutoCloseable{
@@ -77,6 +81,90 @@ public class InputReader implements AutoCloseable{
 
     public String readLineTrimmed() {
         return scanner.nextLine().trim();
+    }
+
+    public LocalDate readOptionalDate(String prompt) {
+        while (true) {
+            System.out.println(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) return null;
+
+            try {
+                return LocalDate.parse(input);
+            } catch (Exception e) {
+                System.out.println("Invalid date format. Expected yyyy-MM-dd.");
+            }
+        }
+    }
+
+    public YearMonth readOptionalYearMonth(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) return null;
+
+            try {
+                return YearMonth.parse(input);
+            } catch (Exception e) {
+                System.out.println("Invalid month format. Expected yyyy-MM.");
+            }
+        }
+    }
+
+    public SortField readOptionalSortField(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) return null;
+
+            try {
+                return SortField.valueOf(input.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid sort field. Allowed: DATE, AMOUNT, CATEGORY, TYPE.");
+            }
+        }
+    }
+
+    public SortDirection readOptionalSortDirection(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) return null;
+
+            try {
+                return SortDirection.valueOf(input.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid sort direction. Allowed: ASC, DESC.");
+            }
+        }
+    }
+
+    public TransactionType readOptionalTransactionType(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) return null;
+
+            try {
+                return TransactionType.fromString(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid type. Allowed: WYDATEK, PRZYCHOD.");
+            }
+        }
+    }
+
+    public Double[] readOptionalAmountRange() {
+        while (true) {
+            Double min = readOptionalDouble("Min amount (or empty): ");
+            Double max = readOptionalDouble("Max amount (or empty): ");
+
+            if (min != null && max != null && min > max) {
+                System.out.println("Invalid range: minAmount must be <= maxAmount. Try again.");
+                continue;
+            }
+
+            return new Double[]{min, max};
+        }
     }
 
     @Override
