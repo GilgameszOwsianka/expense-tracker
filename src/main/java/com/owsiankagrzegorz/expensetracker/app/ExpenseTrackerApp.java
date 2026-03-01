@@ -24,10 +24,12 @@ public class ExpenseTrackerApp {
         var queryService = new TransactionQueryService(repository);
         var reportService = new TransactionReportService(repository);
 
-        // TEMP seed data (for manual testing) - we'll clean this up in a later commit
-        service.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
-        service.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
-        service.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.of(2026, 1, 1), TransactionType.PRZYCHOD));
+        boolean seed = Boolean.getBoolean("seed");
+        if (seed) {
+            service.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
+            service.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
+            service.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.of(2026, 1, 1), TransactionType.PRZYCHOD));
+        }
 
         Scanner scanner = new Scanner(System.in);
         InputReader input = new InputReader(scanner);
