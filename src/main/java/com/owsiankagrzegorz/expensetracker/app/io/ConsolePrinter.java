@@ -29,6 +29,10 @@ public class ConsolePrinter {
         System.out.println(msg);
     }
 
+    public String formatAmount(double amount) {
+        return String.format("%10.2f", amount);
+    }
+
     public void prompt(String msg) {
         System.out.print(msg);
     }

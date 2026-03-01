@@ -48,10 +48,10 @@ public class ReportsMenuCommand implements Command {
         ctx.printer().separator();
         ctx.printer().info("Month: " + summary.getMonth());
         ctx.printer().separator();
-        ctx.printer().info("Income:  " + summary.getIncomeTotal());
-        ctx.printer().info("Expense: " + summary.getExpenseTotal());
+        ctx.printer().info("Income:  " + ctx.printer().formatAmount(summary.getIncomeTotal()));
+        ctx.printer().info("Expense: " + ctx.printer().formatAmount(summary.getExpenseTotal()));
         ctx.printer().separator();
-        ctx.printer().info("Balance: " + summary.getBalance());
+        ctx.printer().info("Balance: " + ctx.printer().formatAmount(summary.getBalance()));
         ctx.printer().separator();
     }
 
@@ -71,10 +71,10 @@ public class ReportsMenuCommand implements Command {
         var summary = ctx.reportService().reportPeriod(from, to);
 
         ctx.printer().separator();
-        ctx.printer().info("Income:  " + summary.getIncomeTotal());
-        ctx.printer().info("Expense: " + summary.getExpenseTotal());
+        ctx.printer().info("Income:  " + ctx.printer().formatAmount(summary.getIncomeTotal()));
+        ctx.printer().info("Expense: " + ctx.printer().formatAmount(summary.getExpenseTotal()));
         ctx.printer().separator();
-        ctx.printer().info("Balance: " + summary.getBalance());
+        ctx.printer().info("Balance: " + ctx.printer().formatAmount(summary.getBalance()));
         ctx.printer().separator();
     }
 
@@ -110,7 +110,7 @@ public class ReportsMenuCommand implements Command {
         ctx.printer().separator();
         breakdown.getTotalsByCategory()
                 .forEach((category, total) ->
-                        ctx.printer().info(category + " : " + total)
+                        ctx.printer().info(category + " : " + ctx.printer().formatAmount(total))
                 );
         ctx.printer().separator();
     }
