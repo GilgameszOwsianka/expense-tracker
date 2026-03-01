@@ -33,7 +33,7 @@ public class ExpenseTrackerApp {
         InputReader input = new InputReader(scanner);
         ConsolePrinter printer = new ConsolePrinter();
 
-        AppContext ctx = new AppContext(service, queryService, input, printer);
+        AppContext ctx = new AppContext(service, queryService, input, printer, reportService);
         ExitSignal exitSignal = new ExitSignal();
         var exitCommand = new ExitCommand(ctx, exitSignal);
         var unknownCommand = new UnknownOptionCommand(ctx);
@@ -46,22 +46,14 @@ public class ExpenseTrackerApp {
         registry.register(5, new SaveToCsvCommand(ctx));
         registry.register(6, new LoadFromCsvCommand(ctx));
         registry.register(7, new QueryTransactionsCommand(ctx));
+        registry.register(8, new ReportsMenuCommand(ctx));
         registry.register(0, exitCommand);
 
         while (!exitSignal.isExitRequested()) {
             printer.printMainMenu();
             int choice = input.readMenuChoice();
-
-            if (choice >= 0 && choice <= 7) {
-                registry.get(choice).execute();
-            } else {
-                switch (choice) {
-                    case 8 -> handleReports(reportService, scanner);
-                    default -> registry.get(choice).execute();
-                }
-            }
+            registry.get(choice).execute();
         }
-
         input.close();
     }
 
