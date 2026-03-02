@@ -1,0 +1,17 @@
+TestCaseID,Feature,Scenario,Input,ExpectedResult,ActualResult,Status
+TC-2.3-01,Startup,Start without seed,"Run app normally -> List (1)","No transactions yet displayed",OK,Passed
+TC-2.3-02,Startup,Start with seed,"Run with -Dseed=true -> List (1)","3 demo transactions displayed",OK,Passed
+TC-2.3-03,Command,Exit command,"Select 0","Application exits cleanly",OK,Passed
+TC-2.3-04,Command,Unknown main option,"Enter 99 in main menu","Unknown option message displayed",OK,Passed
+TC-2.3-05,CRUD,Add transaction,"Select 2 -> valid data","Transaction added with incremented ID",OK,Passed
+TC-2.3-06,CRUD,Delete valid ID,"Select 3 -> existing ID","Transaction removed",OK,Passed
+TC-2.3-07,CRUD,Delete invalid ID,"Select 3 -> non-existing ID","Transaction not found message displayed",OK,Passed
+TC-2.3-08,Filter,Filter by type,"Select 4 -> WYDATEK/PRZYCHOD","Only matching transactions displayed",OK,Passed
+TC-2.3-09,Persistence,Save to CSV,"Select 5","File created in data/transactions.csv",OK,Passed
+TC-2.3-10,Persistence,Load from CSV,"Select 6","Transactions loaded successfully",OK,Passed
+TC-2.3-11,Query,Advanced query via command,"Select 7 -> apply filters","Filtered results displayed correctly",OK,Passed
+TC-2.3-12,Reports,Monthly summary (Strategy),"Select 8 -> 1 -> valid month","Correct totals formatted to 2 decimals",OK,Passed
+TC-2.3-13,Reports,Period summary (Strategy),"Select 8 -> 2 -> valid range","Correct totals formatted to 2 decimals",OK,Passed
+TC-2.3-14,Reports,Category breakdown (Strategy),"Select 8 -> 3 -> valid range","Totals per category formatted to 2 decimals",OK,Passed
+TC-2.3-15,Reports,Unknown reports option,"Select 8 -> invalid option","Unknown option message displayed",OK,Passed
+TC-2.3-16,Architecture,Main loop without switch,"Inspect ExpenseTrackerApp main loop","No switch-case in main dispatch (uses CommandRegistry)",OK,Passed

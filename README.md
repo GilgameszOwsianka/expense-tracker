@@ -222,6 +222,50 @@ Ulepszenie stabilności i UX w konsoli bez zmian w logice biznesowej:
 - CSV: [`docs/manual-tests/manual-tests-etap-2.2.1.csv`](docs/manual-tests/manual-tests-etap-2.2.1.csv)
 
 ---
+## Stage 2.3 – Refaktoryzacja architektury (Podsumowanie portfolio)
+
+Etap 2.3 obejmował gruntowną refaktoryzację warstwy aplikacyjnej w celu poprawy modularności, rozszerzalności oraz jakości kodu.
+
+### 🔧 Najważniejsze zmiany
+
+- Usunięcie `switch-case` z głównej pętli aplikacji
+- Wprowadzenie wzorca **Command** do obsługi menu
+- Wprowadzenie wzorca **Strategy** dla submenu raportów
+- Wydzielenie warstwy IO (`InputReader`, `ConsolePrinter`)
+- Usunięcie legacy handlerów i duplikacji logiki
+- Dodanie opcjonalnego seed danych sterowanego flagą JVM (`-Dseed=true`)
+- Centralizacja formatowania liczb w warstwie prezentacji
+
+### 🏗 Struktura projektu po Stage 2.3
+
+```text
+app
+├── command
+├── io
+└── report
+
+service
+├── query
+└── report
+```
+
+- **app** – warstwa prezentacji i orkiestracji
+- **service** – logika biznesowa i przetwarzanie danych
+
+### 🧩 Zastosowane wzorce projektowe
+
+- Command
+- Strategy
+- Registry
+- Separation of Concerns
+- Open/Closed Principle
+- Single Responsibility Principle
+
+### 🚀 Efekt
+
+Projekt został przekształcony z prostej aplikacji menu-driven w modularną architekturę opartą o wzorce projektowe.  
+Kod jest czytelniejszy, łatwiejszy do rozszerzania oraz lepiej przygotowany do dalszego rozwoju (Stage 3+).
+---
 # Workflow developerski
 
 Projekt realizowany jest według uproszczonego, ale profesjonalnego procesu pracy dostosowanego do projektu jednoosobowego.
