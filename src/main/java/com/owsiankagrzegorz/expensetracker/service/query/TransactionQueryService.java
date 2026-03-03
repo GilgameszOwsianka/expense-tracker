@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class TransactionQueryService {
-
     private final TransactionRepository repository;
 
     public TransactionQueryService(TransactionRepository repository) {
@@ -25,36 +24,29 @@ public class TransactionQueryService {
             var type = query.getType().get();
             stream = stream.filter(t -> t.getType() == type);
         }
-
         if (query.getDateFrom().isPresent()) {
             var from = query.getDateFrom().get();
             stream = stream.filter(t -> !t.getDate().isBefore(from));
         }
-
         if (query.getDateTo().isPresent()) {
             var to = query.getDateTo().get();
             stream = stream.filter(t -> !t.getDate().isAfter(to));
         }
-
         if (query.getCategory().isPresent()) {
             var category = query.getCategory().get();
             stream = stream.filter(t -> t.getCategory() != null && t.getCategory().equalsIgnoreCase(category));
         }
-
         if (query.getMinAmount().isPresent()) {
             var min = query.getMinAmount().get();
-            stream = stream.filter(t -> t.getAmount() >= min);
+            stream = stream.filter(t -> t.getAmount().compareTo(min) >= 0);
         }
-
         if (query.getMaxAmount().isPresent()) {
             var max = query.getMaxAmount().get();
-            stream = stream.filter(t -> t.getAmount() <= max);
+            stream = stream.filter(t -> t.getAmount().compareTo(max) <= 0);
         }
-
         if (query.getSortSpec().isPresent()) {
             stream = stream.sorted(toComparator(query.getSortSpec().get()));
         }
-
         if (query.getLimit().isPresent()) {
             stream = stream.limit(query.getLimit().get());
         }
@@ -65,15 +57,17 @@ public class TransactionQueryService {
     private Comparator<Transaction> toComparator(SortSpec spec) {
         Comparator<Transaction> comparator = switch (spec.getField()) {
             case DATE -> Comparator.comparing(Transaction::getDate);
-            case AMOUNT -> Comparator.comparingDouble(Transaction::getAmount);
-            case CATEGORY -> Comparator.comparing(t -> t.getCategory() == null ? "" : t.getCategory(), String.CASE_INSENSITIVE_ORDER);
+            case AMOUNT -> Comparator.comparing(Transaction::getAmount);
+            case CATEGORY -> Comparator.comparing(
+                    t -> t.getCategory() == null ? "" : t.getCategory(),
+                    String.CASE_INSENSITIVE_ORDER
+            );
             case TYPE -> Comparator.comparing(t -> t.getType().name());
         };
 
         if (spec.getDirection() == SortDirection.DESC) {
             comparator = comparator.reversed();
         }
-
         return comparator;
     }
 }

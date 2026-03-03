@@ -7,6 +7,7 @@ import com.owsiankagrzegorz.expensetracker.service.report.dto.CategoryBreakdown;
 import com.owsiankagrzegorz.expensetracker.service.report.dto.MonthlySummary;
 import com.owsiankagrzegorz.expensetracker.service.report.dto.PeriodSummary;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Comparator;
@@ -14,10 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TransactionReportService {
-
     private final TransactionRepository repository;
 
     public TransactionReportService(TransactionRepository repository) {
@@ -28,21 +27,20 @@ public class TransactionReportService {
         Objects.requireNonNull(from, "from");
         Objects.requireNonNull(to, "to");
 
-        Stream<Transaction> stream = repository.findAll().stream()
-                .filter(t -> !t.getDate().isBefore(from))
-                .filter(t -> !t.getDate().isAfter(to));
-
-        double income = stream
-                .filter(t -> t.getType() == TransactionType.PRZYCHOD)
-                .mapToDouble(Transaction::getAmount)
-                .sum();
-
-        double expense = repository.findAll().stream()
+        var filtered = repository.findAll().stream()
                 .filter(t -> !t.getDate().isBefore(from))
                 .filter(t -> !t.getDate().isAfter(to))
+                .toList();
+
+        BigDecimal income = filtered.stream()
+                .filter(t -> t.getType() == TransactionType.PRZYCHOD)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal expense = filtered.stream()
                 .filter(t -> t.getType() == TransactionType.WYDATEK)
-                .mapToDouble(Transaction::getAmount)
-                .sum();
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new PeriodSummary(income, expense);
     }
@@ -61,7 +59,7 @@ public class TransactionReportService {
         Objects.requireNonNull(from, "from");
         Objects.requireNonNull(to, "to");
 
-        Stream<Transaction> stream = repository.findAll().stream()
+        var stream = repository.findAll().stream()
                 .filter(t -> !t.getDate().isBefore(from))
                 .filter(t -> !t.getDate().isAfter(to));
 
@@ -69,13 +67,13 @@ public class TransactionReportService {
             stream = stream.filter(t -> t.getType() == typeOrNull);
         }
 
-        Map<String, Double> totals = stream.collect(Collectors.groupingBy(
+        Map<String, BigDecimal> totals = stream.collect(Collectors.groupingBy(
                 Transaction::getCategory,
-                Collectors.summingDouble(Transaction::getAmount)
+                Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
         ));
 
-        Map<String, Double> sorted = totals.entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue(Comparator.reverseOrder()))
+        Map<String, BigDecimal> sorted = totals.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
