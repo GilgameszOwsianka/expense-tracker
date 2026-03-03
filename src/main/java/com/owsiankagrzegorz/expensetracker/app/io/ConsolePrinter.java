@@ -1,5 +1,8 @@
 package com.owsiankagrzegorz.expensetracker.app.io;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class ConsolePrinter {
 
     public void printMainMenu() {
@@ -29,8 +32,11 @@ public class ConsolePrinter {
         System.out.println(msg);
     }
 
-    public String formatAmount(double amount) {
-        return String.format("%10.2f", amount);
+    public String formatAmount(BigDecimal amount) {
+        if (amount == null) {
+            return "0.00";
+        }
+        return amount.setScale(2, RoundingMode.HALF_UP).toPlainString();
     }
 
     public void prompt(String msg) {
