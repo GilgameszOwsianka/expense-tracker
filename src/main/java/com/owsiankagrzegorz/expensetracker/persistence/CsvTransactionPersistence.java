@@ -57,7 +57,7 @@ public class CsvTransactionPersistence implements TransactionPersistence {
         // Minimal CSV: assumes category/type do not contain commas/newlines.
         // I'll harden it later if needed.
         return t.getId() + ","
-                + t.getAmount() + ","
+                + t.getAmount().toPlainString() + ","
                 + t.getCategory() + ","
                 + t.getDate() + ","
                 + t.getType().name();
