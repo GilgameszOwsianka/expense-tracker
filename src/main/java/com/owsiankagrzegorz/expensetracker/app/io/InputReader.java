@@ -4,6 +4,8 @@ import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 import com.owsiankagrzegorz.expensetracker.service.query.SortDirection;
 import com.owsiankagrzegorz.expensetracker.service.query.SortField;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Scanner;
@@ -53,6 +55,63 @@ public class InputReader implements AutoCloseable{
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number.\nTry again.");
             }
+        }
+    }
+
+    private BigDecimal parseMoney(String input) {
+        // Accept "123.45" and "123,45"
+        String normalized = input.trim().replace(',', '.');
+        BigDecimal value = new BigDecimal(normalized);
+        return value.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal readPositiveBigDecimal(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            try {
+                BigDecimal value = parseMoney(input);
+                if (value.compareTo(BigDecimal.ZERO) <= 0) {
+                    System.out.println("Amount must be greater than 0.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid amount. Use format 123.45 or 123,45.\nTry again.");
+            }
+        }
+    }
+
+    public BigDecimal readOptionalBigDecimal(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) return null;
+
+            try {
+                // For filters: allow 0.00 and up
+                BigDecimal value = parseMoney(input);
+                if (value.compareTo(BigDecimal.ZERO) < 0) {
+                    System.out.println("Amount must be >= 0.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid amount. Use format 123.45 or 123,45.\nTry again.");
+            }
+        }
+    }
+
+    public BigDecimal[] readOptionalAmountRangeBigDecimal() {
+        while (true) {
+            BigDecimal min = readOptionalBigDecimal("Min amount (or empty): ");
+            BigDecimal max = readOptionalBigDecimal("Max amount (or empty): ");
+
+            if (min != null && max != null && min.compareTo(max) > 0) {
+                System.out.println("Invalid range: minAmount must be <= maxAmount. Try again.");
+                continue;
+            }
+            return new BigDecimal[]{min, max};
         }
     }
 
