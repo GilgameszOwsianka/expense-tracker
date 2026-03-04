@@ -3,7 +3,6 @@ package com.owsiankagrzegorz.expensetracker.app.command;
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class AddTransactionCommand implements Command {
@@ -18,8 +17,7 @@ public class AddTransactionCommand implements Command {
     public void execute() {
         ctx.printer().info("\nAdd new transaction");
 
-        double amountDouble = ctx.input().readPositiveDouble("Amount: ");
-        BigDecimal amount = BigDecimal.valueOf(amountDouble).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal amount = ctx.input().readPositiveBigDecimal("Amount: ");
 
         String category = ctx.input().readNonEmptyString("Category: ");
         var type = ctx.input().readTransactionType("Type (WYDATEK/PRZYCHOD): ");

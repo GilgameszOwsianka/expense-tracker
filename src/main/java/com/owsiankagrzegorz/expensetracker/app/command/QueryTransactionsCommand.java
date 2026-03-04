@@ -49,14 +49,9 @@ public class QueryTransactionsCommand implements Command {
         if (!category.isEmpty()) builder.category(category);
 
         // 4) Amount range (optional)
-        Double[] range = ctx.input().readOptionalAmountRange();
-
-        if (range[0] != null) {
-            builder.minAmount(BigDecimal.valueOf(range[0]));
-        }
-        if (range[1] != null) {
-            builder.maxAmount(BigDecimal.valueOf(range[1]));
-        }
+        BigDecimal[] range = ctx.input().readOptionalAmountRangeBigDecimal();
+        if (range[0] != null) builder.minAmount(range[0]);
+        if (range[1] != null) builder.maxAmount(range[1]);
 
         // 5) Sorting (optional)
         SortField sortField = ctx.input().readOptionalSortField("Sort field (DATE/AMOUNT/CATEGORY/TYPE or empty): ");
