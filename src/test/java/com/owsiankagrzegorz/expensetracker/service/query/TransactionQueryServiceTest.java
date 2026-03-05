@@ -7,6 +7,7 @@ import com.owsiankagrzegorz.expensetracker.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,10 +22,10 @@ class TransactionQueryServiceTest {
         TransactionRepository repo = new InMemoryTransactionRepository();
         queryService = new TransactionQueryService(repo);
 
-        repo.add(new Transaction(1L, 100.0, "Jedzenie", LocalDate.of(2026, 1, 10), TransactionType.WYDATEK));
-        repo.add(new Transaction(2L, 200.0, "Transport", LocalDate.of(2026, 1, 11), TransactionType.WYDATEK));
-        repo.add(new Transaction(3L, 500.0, "Wypłata", LocalDate.of(2026, 1, 15), TransactionType.PRZYCHOD));
-        repo.add(new Transaction(4L, 50.0, "Jedzenie", LocalDate.of(2026, 2, 1), TransactionType.WYDATEK));
+        repo.add(new Transaction(1L, bd("100.00"), "Jedzenie", LocalDate.of(2026, 1, 10), TransactionType.WYDATEK));
+        repo.add(new Transaction(2L, bd("200.00"), "Transport", LocalDate.of(2026, 1, 11), TransactionType.WYDATEK));
+        repo.add(new Transaction(3L, bd("500.00"), "Wypłata", LocalDate.of(2026, 1, 15), TransactionType.PRZYCHOD));
+        repo.add(new Transaction(4L, bd("50.00"), "Jedzenie", LocalDate.of(2026, 2, 1), TransactionType.WYDATEK));
     }
 
     @Test
@@ -76,8 +77,8 @@ class TransactionQueryServiceTest {
         List<Transaction> result = queryService.find(query);
 
         assertEquals(4, result.size());
-        assertEquals(500.0, result.get(0).getAmount());
-        assertEquals(50.0, result.get(3).getAmount());
+        assertMoneyEquals("500.00", result.get(0).getAmount());
+        assertMoneyEquals("50.00", result.get(3).getAmount());
     }
 
     @Test
@@ -90,20 +91,33 @@ class TransactionQueryServiceTest {
         List<Transaction> result = queryService.find(query);
 
         assertEquals(2, result.size());
-        assertEquals(500.0, result.get(0).getAmount());
-        assertEquals(200.0, result.get(1).getAmount());
+        assertMoneyEquals("500.00", result.get(0).getAmount());
+        assertMoneyEquals("200.00", result.get(1).getAmount());
     }
 
     @Test
     void shouldFilterByAmountRange() {
         var query = TransactionQuery.builder()
-                .minAmount(60.0)
-                .maxAmount(250.0)
+                .minAmount(bd("60.00"))
+                .maxAmount(bd("250.00"))
                 .build();
 
         List<Transaction> result = queryService.find(query);
 
         assertEquals(2, result.size());
-        assertTrue(result.stream().allMatch(t -> t.getAmount() >= 60.0 && t.getAmount() <= 250.0));
+        assertTrue(result.stream().allMatch(t ->
+                t.getAmount().compareTo(bd("60.00")) >= 0 &&
+                        t.getAmount().compareTo(bd("250.00")) <= 0
+        ));
+    }
+
+    private static BigDecimal bd(String v) {
+        return new BigDecimal(v);
+    }
+
+    private static void assertMoneyEquals(String expected, BigDecimal actual) {
+        assertNotNull(actual);
+        assertEquals(0, new BigDecimal(expected).compareTo(actual),
+                () -> "expected=" + expected + " actual=" + actual);
     }
 }

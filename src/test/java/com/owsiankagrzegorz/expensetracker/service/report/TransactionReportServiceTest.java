@@ -4,10 +4,10 @@ import com.owsiankagrzegorz.expensetracker.model.Transaction;
 import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 import com.owsiankagrzegorz.expensetracker.repository.InMemoryTransactionRepository;
 import com.owsiankagrzegorz.expensetracker.repository.TransactionRepository;
-import com.owsiankagrzegorz.expensetracker.service.query.TransactionQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 
@@ -22,11 +22,11 @@ class TransactionReportServiceTest {
         TransactionRepository repo = new InMemoryTransactionRepository();
         reportService = new TransactionReportService(repo);
 
-        repo.add(new Transaction(1L, 100.0, "Jedzenie", LocalDate.of(2026, 1, 10), TransactionType.WYDATEK));
-        repo.add(new Transaction(2L, 200.0, "Transport", LocalDate.of(2026, 1, 11), TransactionType.WYDATEK));
-        repo.add(new Transaction(3L, 500.0, "Wypłata", LocalDate.of(2026, 1, 15), TransactionType.PRZYCHOD));
-        repo.add(new Transaction(4L, 50.0, "Jedzenie", LocalDate.of(2026, 2, 1), TransactionType.WYDATEK));
-        repo.add(new Transaction(5L, 700.0, "Wypłata", LocalDate.of(2026, 2, 5), TransactionType.PRZYCHOD));
+        repo.add(new Transaction(1L, bd("100.00"), "Jedzenie", LocalDate.of(2026, 1, 10), TransactionType.WYDATEK));
+        repo.add(new Transaction(2L, bd("200.00"), "Transport", LocalDate.of(2026, 1, 11), TransactionType.WYDATEK));
+        repo.add(new Transaction(3L, bd("500.00"), "Wypłata", LocalDate.of(2026, 1, 15), TransactionType.PRZYCHOD));
+        repo.add(new Transaction(4L, bd("50.00"), "Jedzenie", LocalDate.of(2026, 2, 1), TransactionType.WYDATEK));
+        repo.add(new Transaction(5L, bd("700.00"), "Wypłata", LocalDate.of(2026, 2, 5), TransactionType.PRZYCHOD));
     }
 
     @Test
@@ -36,9 +36,9 @@ class TransactionReportServiceTest {
                 LocalDate.of(2026, 1, 31)
         );
 
-        assertEquals(500.0, summary.getIncomeTotal());
-        assertEquals(300.0, summary.getExpenseTotal());
-        assertEquals(200.0, summary.getBalance());
+        assertMoneyEquals("500.00", summary.getIncomeTotal());
+        assertMoneyEquals("300.00", summary.getExpenseTotal());
+        assertMoneyEquals("200.00", summary.getBalance());
     }
 
     @Test
@@ -47,9 +47,9 @@ class TransactionReportServiceTest {
         var summary = reportService.reportMonthly(month);
 
         assertEquals(month, summary.getMonth());
-        assertEquals(700.0, summary.getIncomeTotal());
-        assertEquals(50.0, summary.getExpenseTotal());
-        assertEquals(650.0, summary.getBalance());
+        assertMoneyEquals("700.00", summary.getIncomeTotal());
+        assertMoneyEquals("50.00", summary.getExpenseTotal());
+        assertMoneyEquals("650.00", summary.getBalance());
     }
 
     @Test
@@ -63,9 +63,10 @@ class TransactionReportServiceTest {
         var totals = breakdown.getTotalsByCategory();
 
         assertEquals(2, totals.size());
-        assertEquals(200.0, totals.get("Transport"));
-        assertEquals(150.0, totals.get("Jedzenie"));
+        assertMoneyEquals("200.00", totals.get("Transport"));
+        assertMoneyEquals("150.00", totals.get("Jedzenie"));
 
+        // If your report returns LinkedHashMap sorted desc (as in your service implementation), this remains valid:
         assertEquals("Transport", totals.keySet().iterator().next());
     }
 
@@ -80,6 +81,16 @@ class TransactionReportServiceTest {
         var totals = breakdown.getTotalsByCategory();
 
         assertEquals(3, totals.size());
-        assertEquals(1200.0, totals.get("Wypłata"));
+        assertMoneyEquals("1200.00", totals.get("Wypłata"));
+    }
+
+    private static BigDecimal bd(String v) {
+        return new BigDecimal(v);
+    }
+
+    private static void assertMoneyEquals(String expected, BigDecimal actual) {
+        assertNotNull(actual);
+        assertEquals(0, new BigDecimal(expected).compareTo(actual),
+                () -> "expected=" + expected + " actual=" + actual);
     }
 }
