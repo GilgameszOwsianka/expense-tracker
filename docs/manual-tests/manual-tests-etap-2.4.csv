@@ -1,0 +1,17 @@
+test_id,area,title,preconditions,steps,expected
+2.4-1.1,Money input,Add transaction with decimal amount (dot),"App running","Main menu -> 2) Add transaction; Amount: 10.10; Category: Test; Type (WYDATEK/PRZYCHOD): WYDATEK","Transaction added successfully; amount displayed as 10.10 (2 decimal places)"
+2.4-1.2,Money input,Rounding HALF_UP (10.129 -> 10.13),"App running","Main menu -> 2) Add transaction; Amount: 10.129; Category: Test; Type: WYDATEK","Transaction added; amount rounded and displayed as 10.13"
+2.4-1.3,Money correctness,No floating point errors (0.10 + 0.20 = 0.30),"App running; reporting available","Main menu -> 2) Add transaction; Amount: 0.10; Category: Test; Type: WYDATEK; Repeat: Amount: 0.20; Category: Test; Type: WYDATEK; Main menu -> 8) Reports -> 2) Period summary; Enter today's date range","Totals show exactly 0.30 (not 0.300000...)"
+
+2.4-2.1,Query,Filter by amount range,"App running; at least some data exists","Main menu -> 7) Query / Filter transactions; Provide Min amount: 10.00; Max amount: 20.00; Leave other filters empty; Run query","All returned transactions satisfy 10.00 <= amount <= 20.00"
+2.4-2.2,Query,Invalid amount range validation,"App running","Main menu -> 7) Query / Filter transactions; Provide Min amount: 20.00; Max amount: 10.00","Validation message shown; user can retry; app does not crash"
+
+2.4-3.1,Reports,Monthly summary formatting,"App running; at least one transaction in the selected month","Main menu -> 8) Reports -> 1) Monthly summary; Enter valid month (yyyy-MM)","Income/Expense/Balance displayed; all monetary values formatted to 2 decimals"
+2.4-3.2,Reports,Period summary formatting,"App running","Main menu -> 8) Reports -> 2) Period summary; Enter valid date range (yyyy-MM-dd)","Totals displayed; all monetary values formatted to 2 decimals"
+2.4-3.3,Reports,Category breakdown formatting,"App running","Main menu -> 8) Reports -> 3) Category breakdown; Enter valid date range (yyyy-MM-dd)","Totals per category displayed; all monetary values formatted to 2 decimals"
+
+2.4-4.1,CSV,Save with default filename,"App running; at least one transaction exists","Main menu -> 5) Save transactions to CSV; At prompt press Enter (empty input)","File transactions.csv created in working directory"
+2.4-4.2,CSV,Save with custom filename (without extension),"App running; at least one transaction exists","Main menu -> 5) Save transactions to CSV; Input: backup","File backup.csv created"
+2.4-4.3,CSV,Save to subdirectory path (auto-create directory),"App running; at least one transaction exists","Main menu -> 5) Save transactions to CSV; Input: report/transaction1","Directory report/ created if missing; file report/transaction1.csv created"
+2.4-4.4,CSV,Load from custom path,"App running; file exists (created via save)","Main menu -> 6) Load transactions from CSV; Input: report/transaction1.csv","Transactions loaded successfully"
+2.4-4.5,CSV,Load missing file handled gracefully,"App running","Main menu -> 6) Load transactions from CSV; Input: does-not-exist.csv","Clear error message shown; application continues running"
