@@ -1,26 +1,20 @@
 package com.owsiankagrzegorz.expensetracker.service.report.dto;
 
+import java.math.BigDecimal;
+import java.util.Objects;
+
 public final class PeriodSummary {
+    private final BigDecimal incomeTotal;
+    private final BigDecimal expenseTotal;
+    private final BigDecimal balance;
 
-    private final double incomeTotal;
-    private final double expenseTotal;
-    private final double balance;
-
-    public PeriodSummary(double incomeTotal, double expenseTotal) {
-        this.incomeTotal = incomeTotal;
-        this.expenseTotal = expenseTotal;
-        this.balance = incomeTotal - expenseTotal;
+    public PeriodSummary(BigDecimal incomeTotal, BigDecimal expenseTotal) {
+        this.incomeTotal = Objects.requireNonNull(incomeTotal, "incomeTotal");
+        this.expenseTotal = Objects.requireNonNull(expenseTotal, "expenseTotal");
+        this.balance = this.incomeTotal.subtract(this.expenseTotal);
     }
 
-    public double getIncomeTotal() {
-        return incomeTotal;
-    }
-
-    public double getExpenseTotal() {
-        return expenseTotal;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
+    public BigDecimal getIncomeTotal() { return incomeTotal; }
+    public BigDecimal getExpenseTotal() { return expenseTotal; }
+    public BigDecimal getBalance() { return balance; }
 }

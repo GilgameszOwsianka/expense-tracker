@@ -7,6 +7,7 @@ import com.owsiankagrzegorz.expensetracker.repository.InMemoryTransactionReposit
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,7 +27,7 @@ class ExpenseTrackerServiceTest {
 
     @Test
     void shouldAddAndListTransactions() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t1 = new Transaction(1L, bd("100.00"), "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
 
         service.addTransaction(t1);
 
@@ -34,12 +35,13 @@ class ExpenseTrackerServiceTest {
         assertEquals(1, all.size());
         assertEquals(1L, all.get(0).getId());
         assertEquals("Jedzenie", all.get(0).getCategory());
+        assertEquals(bd("100.00"), all.get(0).getAmount());
     }
 
     @Test
     void shouldRemoveTransactionById() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
-        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t1 = new Transaction(1L, bd("100.00"), "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t2 = new Transaction(2L, bd("200.00"), "Transport", LocalDate.now(), TransactionType.WYDATEK);
 
         service.addTransaction(t1);
         service.addTransaction(t2);
@@ -51,7 +53,7 @@ class ExpenseTrackerServiceTest {
 
     @Test
     void shouldReturnFalseWhenRemovingNonExistingId() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t1 = new Transaction(1L, bd("100.00"), "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
 
         service.addTransaction(t1);
 
@@ -61,9 +63,9 @@ class ExpenseTrackerServiceTest {
 
     @Test
     void shouldFilterByType() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
-        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK);
-        Transaction t3 = new Transaction(3L, 500.0, "Wypłata", LocalDate.now(), TransactionType.PRZYCHOD);
+        Transaction t1 = new Transaction(1L, bd("100.00"), "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t2 = new Transaction(2L, bd("200.00"), "Transport", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t3 = new Transaction(3L, bd("500.00"), "Wypłata", LocalDate.now(), TransactionType.PRZYCHOD);
 
         service.addTransaction(t1);
         service.addTransaction(t2);
@@ -79,8 +81,8 @@ class ExpenseTrackerServiceTest {
 
     @Test
     void shouldReplaceAllTransactions() {
-        Transaction t1 = new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
-        Transaction t2 = new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t1 = new Transaction(1L, bd("100.00"), "Jedzenie", LocalDate.now(), TransactionType.WYDATEK);
+        Transaction t2 = new Transaction(2L, bd("200.00"), "Transport", LocalDate.now(), TransactionType.WYDATEK);
 
         service.addTransaction(t1);
         assertEquals(1, service.getSize());
@@ -93,8 +95,8 @@ class ExpenseTrackerServiceTest {
     void shouldGenerateNextTransactionId() {
         assertEquals(1L, service.nextTransactionId());
 
-        service.addTransaction(new Transaction(10L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
-        service.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.now(), TransactionType.WYDATEK));
+        service.addTransaction(new Transaction(10L, bd("100.00"), "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
+        service.addTransaction(new Transaction(2L, bd("200.00"), "Transport", LocalDate.now(), TransactionType.WYDATEK));
 
         assertEquals(11L, service.nextTransactionId());
     }
@@ -107,11 +109,10 @@ class ExpenseTrackerServiceTest {
         var repo1 = new InMemoryTransactionRepository();
         var service1 = new ExpenseTrackerService(repo1, persistence);
 
-        service1.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
-        service1.addTransaction(new Transaction(2L, 300.0, "Wypłata", LocalDate.now(), TransactionType.PRZYCHOD));
+        service1.addTransaction(new Transaction(1L, bd("100.00"), "Jedzenie", LocalDate.now(), TransactionType.WYDATEK));
+        service1.addTransaction(new Transaction(2L, bd("300.00"), "Wypłata", LocalDate.now(), TransactionType.PRZYCHOD));
 
         java.nio.file.Path path = java.nio.file.Path.of("ignored.csv");
-
         service1.save(path);
 
         // --- Simulate application restart ---
@@ -119,12 +120,28 @@ class ExpenseTrackerServiceTest {
         var service2 = new ExpenseTrackerService(repo2, persistence);
 
         int loaded = service2.load(path);
-
         assertEquals(2, loaded);
         assertEquals(2, service2.getSize());
 
         var all = service2.getAllTransactions();
         assertEquals(1L, all.get(0).getId());
         assertEquals(2L, all.get(1).getId());
+    }
+
+    // 2.4-5: flagship money correctness test
+    @Test
+    void shouldHandleMoneyWithoutFloatingPointErrors() {
+        service.addTransaction(new Transaction(1L, bd("0.10"), "Test", LocalDate.now(), TransactionType.WYDATEK));
+        service.addTransaction(new Transaction(2L, bd("0.20"), "Test", LocalDate.now(), TransactionType.WYDATEK));
+
+        BigDecimal sum = service.getAllTransactions().stream()
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        assertEquals(bd("0.30"), sum);
+    }
+
+    private static BigDecimal bd(String v) {
+        return new BigDecimal(v);
     }
 }

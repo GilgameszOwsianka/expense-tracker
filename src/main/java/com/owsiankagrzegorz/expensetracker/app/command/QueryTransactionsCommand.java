@@ -6,6 +6,7 @@ import com.owsiankagrzegorz.expensetracker.service.query.SortField;
 import com.owsiankagrzegorz.expensetracker.service.query.SortSpec;
 import com.owsiankagrzegorz.expensetracker.service.query.TransactionQuery;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class QueryTransactionsCommand implements Command {
@@ -48,7 +49,7 @@ public class QueryTransactionsCommand implements Command {
         if (!category.isEmpty()) builder.category(category);
 
         // 4) Amount range (optional)
-        Double[] range = ctx.input().readOptionalAmountRange();
+        BigDecimal[] range = ctx.input().readOptionalAmountRangeBigDecimal();
         if (range[0] != null) builder.minAmount(range[0]);
         if (range[1] != null) builder.maxAmount(range[1]);
 

@@ -265,6 +265,29 @@ service
 
 Projekt został przekształcony z prostej aplikacji menu-driven w modularną architekturę opartą o wzorce projektowe.  
 Kod jest czytelniejszy, łatwiejszy do rozszerzania oraz lepiej przygotowany do dalszego rozwoju (Stage 3+).
+
+---
+
+## Stage 2.4 – BigDecimal migration (Money correctness)
+
+### Cel
+Migracja kwot z `double` na `BigDecimal` w całym projekcie w celu:
+- eliminacji błędów zmiennoprzecinkowych (np. 0.1 + 0.2)
+- poprawnej arytmetyki finansowej
+- spójnego formatowania kwot (2 miejsca po przecinku)
+
+### Zmiany
+- `Transaction.amount`: `double` → `BigDecimal`
+- Query / Report DTO i serwisy używają `BigDecimal`
+- IO / UI: odczyt kwot oraz zakresów kwot działa na `BigDecimal`
+- CSV persistence: zapis/odczyt kwot jako tekst `BigDecimal` (2 decimal places)
+- CSV UX: możliwość podania własnej nazwy/ścieżki pliku podczas save/load (default: `transactions.csv`)
+
+### Testy
+- Unit tests: zaktualizowane pod `BigDecimal` + test money correctness
+- Manual tests:
+  - Markdown: [`docs/manual-tests/manual-tests-stage-2.4.md`](docs/manual-tests/manual-tests-stage-2.4.md)
+  - CSV: [`docs/manual-tests/manual-tests-stage-2.4.csv`](docs/manual-tests/manual-tests-stage-2.4.csv)
 ---
 # Workflow developerski
 

@@ -2,6 +2,7 @@ package com.owsiankagrzegorz.expensetracker.app.command;
 
 import com.owsiankagrzegorz.expensetracker.model.Transaction;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class AddTransactionCommand implements Command {
@@ -16,7 +17,8 @@ public class AddTransactionCommand implements Command {
     public void execute() {
         ctx.printer().info("\nAdd new transaction");
 
-        double amount = ctx.input().readPositiveDouble("Amount: ");
+        BigDecimal amount = ctx.input().readPositiveBigDecimal("Amount: ");
+
         String category = ctx.input().readNonEmptyString("Category: ");
         var type = ctx.input().readTransactionType("Type (WYDATEK/PRZYCHOD): ");
 

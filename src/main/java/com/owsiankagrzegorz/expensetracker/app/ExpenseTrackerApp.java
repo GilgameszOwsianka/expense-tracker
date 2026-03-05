@@ -10,6 +10,8 @@ import com.owsiankagrzegorz.expensetracker.repository.InMemoryTransactionReposit
 import com.owsiankagrzegorz.expensetracker.service.ExpenseTrackerService;
 import com.owsiankagrzegorz.expensetracker.service.query.*;
 import com.owsiankagrzegorz.expensetracker.service.report.TransactionReportService;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Scanner;
 
@@ -25,9 +27,9 @@ public class ExpenseTrackerApp {
 
         boolean seed = Boolean.getBoolean("seed");
         if (seed) {
-            service.addTransaction(new Transaction(1L, 100.0, "Jedzenie", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
-            service.addTransaction(new Transaction(2L, 200.0, "Transport", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
-            service.addTransaction(new Transaction(3L, 300.0, "Przychód", LocalDate.of(2026, 1, 1), TransactionType.PRZYCHOD));
+            service.addTransaction(new Transaction(1L, BigDecimal.valueOf(100.0), "Jedzenie", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
+            service.addTransaction(new Transaction(2L, BigDecimal.valueOf(200.0), "Transport", LocalDate.of(2026, 1, 1), TransactionType.WYDATEK));
+            service.addTransaction(new Transaction(3L, BigDecimal.valueOf(300.0), "Przychód", LocalDate.of(2026, 1, 1), TransactionType.PRZYCHOD));
         }
 
         InputReader input = new InputReader(new Scanner(System.in));

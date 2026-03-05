@@ -5,6 +5,7 @@ import com.owsiankagrzegorz.expensetracker.model.TransactionType;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,7 +45,7 @@ public class CsvTransactionPersistence implements TransactionPersistence {
         String[] parts = line.split(",");
 
         long id = Long.parseLong(parts[0]);
-        double amount = Double.parseDouble(parts[1]);
+        BigDecimal amount = new BigDecimal(parts[1]);
         String category = parts[2];
         java.time.LocalDate date = java.time.LocalDate.parse(parts[3]);
         TransactionType type = TransactionType.fromString(parts[4]);
@@ -56,7 +57,7 @@ public class CsvTransactionPersistence implements TransactionPersistence {
         // Minimal CSV: assumes category/type do not contain commas/newlines.
         // I'll harden it later if needed.
         return t.getId() + ","
-                + t.getAmount() + ","
+                + t.getAmount().toPlainString() + ","
                 + t.getCategory() + ","
                 + t.getDate() + ","
                 + t.getType().name();
