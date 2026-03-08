@@ -4,8 +4,12 @@ import com.owsiankagrzegorz.expensetracker.app.report.CategoryBreakdownReportStr
 import com.owsiankagrzegorz.expensetracker.app.report.MonthlySummaryReportStrategy;
 import com.owsiankagrzegorz.expensetracker.app.report.PeriodSummaryReportStrategy;
 import com.owsiankagrzegorz.expensetracker.app.report.ReportRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportsMenuCommand implements Command {
+
+    private static final Logger log = LoggerFactory.getLogger(ReportsMenuCommand.class);
 
     private final AppContext ctx;
     private final ReportRegistry registry;
@@ -23,19 +27,20 @@ public class ReportsMenuCommand implements Command {
     @Override
     public void execute() {
         ctx.printer().info("\n--- Reports ---");
-        registry.all().values().forEach(s ->
-                ctx.printer().info(s.key() + ") " + s.label())
-        );
-
+        registry.all().values().forEach(s -> ctx.printer().info(s.key() + ") " + s.label()));
         ctx.printer().info("Choose option: ");
-        String option = ctx.input().readLineTrimmed();
 
+        String option = ctx.input().readLineTrimmed();
         var strategy = registry.get(option);
+
         if (strategy == null) {
+            log.warn("Unknown report option selected: option={}", option);
             ctx.printer().error("Unknown option.");
             return;
         }
 
+        log.info("Selected report: key={}, label={}", strategy.key(), strategy.label());
         strategy.execute(ctx);
+        log.info("Finished report: key={}", strategy.key());
     }
 }

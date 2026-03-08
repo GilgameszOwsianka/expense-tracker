@@ -1,10 +1,14 @@
 package com.owsiankagrzegorz.expensetracker.app.report;
 
 import com.owsiankagrzegorz.expensetracker.app.command.AppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.YearMonth;
 
 public class MonthlySummaryReportStrategy implements ReportStrategy {
+
+    private static final Logger log = LoggerFactory.getLogger(MonthlySummaryReportStrategy.class);
 
     @Override
     public String key() {
@@ -20,9 +24,12 @@ public class MonthlySummaryReportStrategy implements ReportStrategy {
     public void execute(AppContext ctx) {
         YearMonth month = ctx.input().readOptionalYearMonth("Enter month (yyyy-MM): ");
         if (month == null) {
+            log.warn("Monthly summary report aborted: month not provided");
             ctx.printer().error("Month is required");
             return;
         }
+
+        log.info("Running monthly summary report: month={}", month);
 
         var summary = ctx.reportService().reportMonthly(month);
 
@@ -34,5 +41,7 @@ public class MonthlySummaryReportStrategy implements ReportStrategy {
         ctx.printer().separator();
         ctx.printer().info("Balance: " + ctx.printer().formatAmount(summary.getBalance()));
         ctx.printer().separator();
+
+        log.info("Monthly summary report generated: month={}", month);
     }
 }
