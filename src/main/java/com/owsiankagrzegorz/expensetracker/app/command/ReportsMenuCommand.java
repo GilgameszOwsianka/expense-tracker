@@ -1,9 +1,6 @@
 package com.owsiankagrzegorz.expensetracker.app.command;
 
-import com.owsiankagrzegorz.expensetracker.app.report.CategoryBreakdownReportStrategy;
-import com.owsiankagrzegorz.expensetracker.app.report.MonthlySummaryReportStrategy;
-import com.owsiankagrzegorz.expensetracker.app.report.PeriodSummaryReportStrategy;
-import com.owsiankagrzegorz.expensetracker.app.report.ReportRegistry;
+import com.owsiankagrzegorz.expensetracker.app.report.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +19,7 @@ public class ReportsMenuCommand implements Command {
         this.registry.register(new MonthlySummaryReportStrategy());
         this.registry.register(new PeriodSummaryReportStrategy());
         this.registry.register(new CategoryBreakdownReportStrategy());
+        this.registry.register(new TotalsSummaryReportStrategy());
     }
 
     @Override

@@ -56,11 +56,24 @@ public class CategoryBreakdownReportStrategy implements ReportStrategy {
             return;
         }
 
+        int maxCategoryWidth = breakdown.getTotalsByCategory().keySet().stream()
+                .mapToInt(String::length)
+                .max()
+                .orElse(10);
+
         ctx.printer().separator();
-        breakdown.getTotalsByCategory()
-                .forEach((category, total) ->
-                        ctx.printer().info(category + " : " + ctx.printer().formatAmount(total))
-                );
+        ctx.printer().info("Category breakdown");
+        ctx.printer().separator();
+
+        breakdown.getTotalsByCategory().forEach((category, total) -> {
+            String line = String.format(
+                    "%-" + maxCategoryWidth + "s : %s",
+                    category,
+                    ctx.printer().formatAmount(total)
+            );
+            ctx.printer().info(line);
+        });
+
         ctx.printer().separator();
 
         log.info("Category breakdown report generated: from={}, to={}, type={}, categories={}",

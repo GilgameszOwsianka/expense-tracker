@@ -93,4 +93,13 @@ class TransactionReportServiceTest {
         assertEquals(0, new BigDecimal(expected).compareTo(actual),
                 () -> "expected=" + expected + " actual=" + actual);
     }
+
+    @Test
+    void shouldReportTotalsSummary() {
+        var summary = reportService.reportTotals();
+
+        assertEquals(bd("1200.00"), summary.getIncomeTotal());
+        assertEquals(bd("350.00"), summary.getExpenseTotal());
+        assertEquals(bd("850.00"), summary.getBalance());
+    }
 }

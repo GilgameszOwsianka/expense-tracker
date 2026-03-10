@@ -6,6 +6,7 @@ import com.owsiankagrzegorz.expensetracker.repository.TransactionRepository;
 import com.owsiankagrzegorz.expensetracker.service.report.dto.CategoryBreakdown;
 import com.owsiankagrzegorz.expensetracker.service.report.dto.MonthlySummary;
 import com.owsiankagrzegorz.expensetracker.service.report.dto.PeriodSummary;
+import com.owsiankagrzegorz.expensetracker.service.report.dto.TotalsSummary;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -53,6 +54,22 @@ public class TransactionReportService {
 
         PeriodSummary period = reportPeriod(from, to);
         return new MonthlySummary(month, period.getIncomeTotal(), period.getExpenseTotal());
+    }
+
+    public TotalsSummary reportTotals() {
+        var all = repository.findAll();
+
+        BigDecimal income = all.stream()
+                .filter(t -> t.getType() == TransactionType.PRZYCHOD)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal expense = all.stream()
+                .filter(t -> t.getType() == TransactionType.WYDATEK)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new TotalsSummary(income, expense);
     }
 
     public CategoryBreakdown reportByCategory(LocalDate from, LocalDate to, TransactionType typeOrNull) {
